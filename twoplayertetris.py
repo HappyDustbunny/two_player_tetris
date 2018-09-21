@@ -6,7 +6,7 @@ from vpython import box, sleep, vector
 def main():
     box()
     print('testt')
-    print('rap')
+    print('rappp')
 
 
 if __name__ == __main__:
