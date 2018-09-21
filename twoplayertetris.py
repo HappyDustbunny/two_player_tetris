@@ -5,7 +5,7 @@ from vpython import box, sleep, vector
 
 def main():
     box()
-    print('test')
+    print('testt')
 
 
 if __name__ == __main__:
