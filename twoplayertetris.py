@@ -25,11 +25,11 @@ from random import shuffle
 
 
 class Player:
-    def __init__(self, turn_widdershins, turn_clockwise, down, left, right, colour):
+    def __init__(self, turn_widdershins, turn_clockwise, soft_drop, hard_drop, left, right, colour):
         self.color = colour
         self.inputs = {turn_widdershins: 'turn_ws', turn_clockwise: 'turn_cw',
-                       down: 'down', left: 'left', right: 'right'}
-        self.tetramino_list = 'IOTSZJL'
+                       soft_drop: 's_drop', hard_drop:'h_drop', left: 'left', right: 'right'}
+        self.tetramino_list = list('IOTSZJL')
         self.tetramino_bag = shuffle(self.tetramino_list)
 
     def receive_input(self, received_inputs):
@@ -37,7 +37,7 @@ class Player:
         for inp in received_inputs:
             if self.inputs.get(inp):
                 action_input = self.inputs[inp]
-        if action_input in ('left', 'right', 'down'):
+        if action_input in ('left', 'right', 's_drop', 'h_drop'):
             self.move_tetramino(action_input)
         elif action_input in ('turn_ws', 'turn_cw'):
             self.turn_tetramino(action_input)
@@ -59,8 +59,8 @@ def capture_key(event):
 
 def main():
     global Key_Event
-    red_player = Player('q', 'e', 's', 'a', 'd', 'red')
-    blue_player = Player('u', 'o', 'k', 'j', 'l', 'blue')
+    red_player = Player('q', 'e', 's', 'w', 'a', 'd', 'red')
+    blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', 'blue')
     players = [red_player, blue_player]
     scene.bind('keydown', capture_key)
     while True:
