@@ -1,4 +1,4 @@
-""" Two Player Tetris """
+""" Two Player Tetris  """
 
 from vpython import box, sleep, vector, scene, color
 
