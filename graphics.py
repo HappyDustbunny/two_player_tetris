@@ -1,6 +1,6 @@
 """ Graphics for Two Player Tetris """
 
-from vpython import box, color, compound, random, sleep, scene, vector
+from vpython import box, color, sleep, scene, vector
 
 
 def main():
@@ -11,7 +11,7 @@ def main():
     # first.update_tetramino('I', 'Horizontal')
     for shape in ['T', 'I', 'O', 'S', 'Z', 'J', 'L']:
         for count in range(4):
-            first(0, 0, shape, str(count))
+            first(0, 0, shape, str(count), color.cyan)
             sleep(delta_t)
     #     i = 0
     # for _ in range(0, 190, 10):
@@ -35,42 +35,47 @@ def main():
 class Tetramino:
     """ Types I, O, S, Z, T, J, L """
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, shape='O', colour=color.white):
         self.x_pos = 10 * x
         self.y_pos = 10 * y
-        self.shape = 'O'
-        self.orientation = '1'
-        self.box1 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
-        self.box2 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
-        self.box3 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
-        self.box4 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
-
-    def __call__(self, x, y, shape, orientation='0'):
         self.shape = shape
-        self.box1.pos = vector(x, y, 0)
-        self.box2.pos = self.box1.pos
-        self.box3.pos = self.box1.pos
-        self.box4.pos = self.box1.pos
+        self.color = colour
+        self.orientation = '1'
+        # self.box1 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
+        # self.box2 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
+        # self.box3 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
+        # self.box4 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
+        self.box = []
+        for _ in range(4):
+            self.box.append(box(pos=vector(x, y, 0), height=8, width=8, length=8))
+
+    def __call__(self, x, y, shape, orientation='0', colour=color.white):
+        self.shape = shape
+        print(colour )
+
+        for _ in range(4):
+            self.box[_].pos = vector(x, y, 0)
+
         shape_dictionary = {('I', '0'): (0, 0, 10, 0, 20, 0, 30, 0),
                             ('I', '1'): (0, 0, 0, 10, 0, 20, 0, 30),
                             ('I', '2'): (0, 0, 10, 0, 20, 0, 30, 0),
                             ('I', '3'): (0, 0, 0, 10, 0, 20, 0, 30),
-                            ('J', '0'): (0, 0, 10, 0, 10, 10, 10, 20),
+                            ('J', '0'): (0, 0, 0, 10, 0, 20, 10, 20),
                             ('J', '1'): (20, 0, 20, 10, 10, 10, 0, 10),
-                            ('J', '2'): (0, 0, 0, 10, 0, 20, 10, 20),
+                            ('J', '2'): (0, 0, 10, 0, 10, 10, 10, 20),
                             ('J', '3'): (0, 0, 10, 0, 20, 0, 0, 10),
-                            ('L', '0'): (0, 0, 10, 0, 20, 0, 20, 10),
+                            ('L', '0'): (0, 0, 10, 0, 0, 10, 0, 20),
                             ('L', '1'): (10, 0, 10, 10, 10, 20, 0, 20),
                             ('L', '2'): (0, 0, 0, 10, 10, 10, 20, 10),
-                            ('L', '3'): (0, 0, 10, 0, 0, 10, 0, 20),
+                            ('L', '3'): (0, 0, 10, 0, 20, 0, 20, 10),
                             ('S', '0'): (0, 0, 10, 0, 10, 10, 20, 10),
                             ('S', '1'): (10, 0, 10, 10, 0, 10, 0, 20),
                             ('S', '2'): (0, 0, 10, 0, 10, 10, 20, 10),
                             ('S', '3'): (10, 0, 10, 10, 0, 10, 0, 20),
-                            ('Z', '0'): (0, 0, 0, 10, 10, 10, 10, 20),
+                            ('Z', '0'): (0, 10, 10, 10, 10, 0, 20, 0),
                             ('Z', '1'): (0, 10, 10, 10, 10, 0, 20, 0),
                             ('Z', '2'): (0, 0, 0, 10, 10, 10, 10, 20),
-                            ('Z', '3'): (0, 10, 10, 10, 10, 0, 20, 0),
+                            ('Z', '3'): (0, 0, 0, 10, 10, 10, 10, 20),
                             ('O', '0'): (0, 0, 10, 0, 0, 10, 10, 10),
                             ('O', '1'): (0, 0, 10, 0, 0, 10, 10, 10),
                             ('O', '2'): (0, 0, 10, 0, 0, 10, 10, 10),
@@ -80,69 +85,10 @@ class Tetramino:
                             ('T', '2'): (10, 0, 0, 10, 10, 10, 20, 10),
                             ('T', '3'): (0, 0, 0, 10, 0, 20, 10, 10),
                             }
-        x1, y1, x2, y2, x3, y3, x4, y4 = shape_dictionary[shape, orientation]
-        self.box1.pos += vector(x1, y1, 0)
-        self.box2.pos += vector(x2, y2, 0)
-        self.box3.pos += vector(x3, y3, 0)
-        self.box4.pos += vector(x4, y4, 0)
-
-        # elif shape == 'L' and orientation in '0':
-        #     self.box2.pos += vector(10, 0, 0)
-        #     self.box3.pos += vector(20, 0, 0)
-        #     self.box4.pos += vector(20, 10, 0)
-        # elif shape == 'L' and orientation in '1':
-        #     self.box1.pos += vector(10, 0, 0)
-        #     self.box2.pos += vector(10, 10, 0)
-        #     self.box3.pos += vector(10, 20, 0)
-        #     self.box4.pos += vector(0, 20, 0)
-        # elif shape == 'L' and orientation in '2':
-        #     self.box2.pos += vector(0, 10, 0)
-        #     self.box3.pos += vector(10, 10, 0)
-        #     self.box4.pos += vector(20, 10, 0)
-        # elif shape == 'L' and orientation in '3':
-        #     self.box2.pos += vector(10, 0, 0)
-        #     self.box3.pos += vector(0, 10, 0)
-        #     self.box4.pos += vector(0, 20, 0)
-        # if shape == 'S' and orientation in '02':
-        #     self.box2.pos += vector(10, 0, 0)
-        #     self.box3.pos += vector(10, 10, 0)
-        #     self.box4.pos += vector(20, 10, 0)
-        # elif shape == 'S' and orientation in '13':
-        #     self.box1.pos += vector(10, 0, 0)
-        #     self.box2.pos += vector(10, 10, 0)
-        #     self.box3.pos += vector(0, 10, 0)
-        #     self.box4.pos += vector(0, 20, 0)
-        # if shape == 'Z' and orientation in '02':
-        #     self.box2.pos += vector(0, 10, 0)
-        #     self.box3.pos += vector(10, 10, 0)
-        #     self.box4.pos += vector(10, 20, 0)
-        # elif shape == 'Z' and orientation in '13':
-        #     self.box1.pos += vector(0, 10, 0)
-        #     self.box2.pos += vector(10, 10, 0)
-        #     self.box3.pos += vector(10, 0, 0)
-        #     self.box4.pos += vector(20, 0, 0)
-        # elif shape == 'O':
-        #     self.box2.pos += vector(10, 0, 0)
-        #     self.box3.pos += vector(0, 10, 0)
-        #     self.box4.pos += vector(10, 10, 0)
-        # elif shape == 'T' and orientation == '0':
-        #     self.box2.pos += vector(10, 0, 0)
-        #     self.box3.pos += vector(20, 0, 0)
-        #     self.box4.pos += vector(10, 10, 0)
-        # elif shape == 'T' and orientation == '1':
-        #     self.box1.pos += vector(10, 0, 0)
-        #     self.box2.pos += vector(10, 10, 0)
-        #     self.box3.pos += vector(10, 20, 0)
-        #     self.box4.pos += vector(0, 10, 0)
-        # elif shape == 'T' and orientation == '2':
-        #     self.box1.pos += vector(10, 0, 0)
-        #     self.box2.pos += vector(0, 10, 0)
-        #     self.box3.pos += vector(10, 10, 0)
-        #     self.box4.pos += vector(20, 10, 0)
-        # elif shape == 'T' and orientation == '3':
-        #     self.box2.pos += vector(0, 10, 0)
-        #     self.box3.pos += vector(0, 20, 0)
-        #     self.box4.pos += vector(10, 10, 0)
+        coordinate_list = shape_dictionary[shape, orientation]
+        for _ in range(4):
+            self.box[_].pos += vector(coordinate_list[2 * _], coordinate_list[2 * _ + 1], 0)
+            self.box[_].color = colour
 
 
 def draw_board(columns, rows):
