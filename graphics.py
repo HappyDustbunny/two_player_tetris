@@ -41,20 +41,16 @@ class Tetramino:
         self.shape = shape
         self.color = colour
         self.orientation = '1'
-        # self.box1 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
-        # self.box2 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
-        # self.box3 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
-        # self.box4 = box(pos=vector(x, y, 0), height=8, width=8, length=8)
-        self.box = []
+        self.boxes = []
         for _ in range(4):
-            self.box.append(box(pos=vector(x, y, 0), height=8, width=8, length=8))
+            self.boxes.append(box(pos=vector(x, y, 0), height=8, width=8, length=8))
 
     def __call__(self, x, y, shape, orientation='0', colour=color.white):
         self.shape = shape
-        print(colour )
+        print(colour)
 
-        for _ in range(4):
-            self.box[_].pos = vector(x, y, 0)
+        for num in range(4):
+            self.boxes[num].pos = vector(x * 10, y * 10, 0)
 
         shape_dictionary = {('I', '0'): (0, 0, 10, 0, 20, 0, 30, 0),
                             ('I', '1'): (0, 0, 0, 10, 0, 20, 0, 30),
@@ -86,9 +82,9 @@ class Tetramino:
                             ('T', '3'): (0, 0, 0, 10, 0, 20, 10, 10),
                             }
         coordinate_list = shape_dictionary[shape, orientation]
-        for _ in range(4):
-            self.box[_].pos += vector(coordinate_list[2 * _], coordinate_list[2 * _ + 1], 0)
-            self.box[_].color = colour
+        for num in range(4):
+            self.boxes[num].pos += vector(coordinate_list[2 * num], coordinate_list[2 * num + 1], 0)
+            self.boxes[num].color = colour
 
 
 def draw_board(columns, rows):
