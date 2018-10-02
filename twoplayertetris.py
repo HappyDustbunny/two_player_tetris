@@ -28,7 +28,7 @@ class Player:
     def __init__(self, turn_widdershins, turn_clockwise, soft_drop, hard_drop, left, right, colour):
         self.color = colour
         self.inputs = {turn_widdershins: 'turn_ws', turn_clockwise: 'turn_cw',
-                       soft_drop: 's_drop', hard_drop:'h_drop', left: -1, right: 1}
+                       soft_drop: 's_drop', hard_drop: 'h_drop', left: -1, right: 1}
         self.bag = shuffle(list('IOTSZJL'))
         self.tetramino_pos = {0: [10, 24], 1: [10, 24], 2: [10, 24], 3: [10, 24]}
 
@@ -50,7 +50,7 @@ class Player:
         droppable = True
         for num in range(4):
             tet_pos = self.tetramino_pos[num]
-            if board.get(tet_pos[0], tet_pos[1]-1) or board.get(tet_pos[0], tet_pos[1]-1) is None:
+            if board.get(tet_pos[0], tet_pos[1] - 1) or board.get(tet_pos[0], tet_pos[1] - 1) is None:
                 droppable = False
         if droppable:
             for num in range(4):
