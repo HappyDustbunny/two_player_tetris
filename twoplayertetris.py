@@ -4,6 +4,8 @@ from vpython import box, sleep, vector, scene, color
 
 from random import shuffle
 
+from graphics import draw_board, Tetramino
+
 
 # class MovableBox:
 #     def __init__(self, up, down, left, right, colour):
@@ -28,9 +30,10 @@ class Player:
     def __init__(self, turn_widdershins, turn_clockwise, soft_drop, hard_drop, left, right, colour):
         self.color = colour
         self.inputs = {turn_widdershins: 'turn_ws', turn_clockwise: 'turn_cw',
-                       soft_drop: 's_drop', hard_drop:'h_drop', left: 'left', right: 'right'}
+                       soft_drop: 's_drop', hard_drop: 'h_drop', left: 'left', right: 'right'}
         self.tetramino_list = list('IOTSZJL')
         self.tetramino_bag = shuffle(self.tetramino_list)
+        self.tetramino = Tetramino(50, 200, 'T', colour=self.color)
 
     def receive_input(self, received_inputs):
         action_input = None
@@ -59,11 +62,19 @@ def capture_key(event):
 
 def main():
     global Key_Event
-    red_player = Player('q', 'e', 's', 'w', 'a', 'd', 'red')
-    blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', 'blue')
+    red_player = Player('q', 'e', 's', 'w', 'a', 'd', color.red)
+    blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', color.blue)
     players = [red_player, blue_player]
     scene.bind('keydown', capture_key)
+    columns, rows = 10, 24
+    board = draw_board(columns, rows)
+    scene.center = vector(int(10 * (columns - 1) / 2), int(10 * rows / 2), 0)
+    scene.autoscale = False
+    red_player.tetramino.shape = 'T'
     while True:
+        for y in range(100, 0, -10):
+            red_player.tetramino.update(10, y)
+            sleep(.5)
         for _ in range(20):
             sleep(0.05)
             key = Key_Event
