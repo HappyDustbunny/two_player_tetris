@@ -35,7 +35,7 @@ class Player:
         self.tetramino_pos = {0: [5, 20], 1: [5, 20], 2: [5, 20], 3: [5, 20]}
         self.tetramino = Tetramino(50, 200, 'T', colour=self.color)
 
-    def receive_input(self, board, board_status, player, received_inputs):
+    def receive_input(self, board, board_status, players, received_inputs):
         action_input = None
         for inp in received_inputs:
             if self.inputs.get(inp):
