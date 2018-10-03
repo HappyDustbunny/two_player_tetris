@@ -4,12 +4,12 @@ from vpython import box, color, sleep, scene, vector
 
 
 def main():
-    delta_t = 1.2
+    delta_t = 2
     columns, rows = 10, 24
     draw_board(columns, rows)
     first = Tetramino(0, 0)
     # first.update_tetramino('I', 'Horizontal')
-    for shape in ['T', 'I', 'O', 'S', 'Z', 'J', 'L']:
+    for shape in ['T', 'I', 'O', 'S', 'J', 'Z', 'L']:
         for count in range(4):
             first(0, 0, shape, str(count), color.cyan)
             sleep(delta_t)
@@ -43,54 +43,54 @@ class Tetramino:
         self.orientation = '1'
         self.boxes = []
         for _ in range(4):
-            self.box.append(box(pos=vector(x, y, 0), height=8, width=8, length=8))
+            self.boxes.append(box(pos=vector(x, y, 0), height=8, width=8, length=8))
+        self.shape_dictionary = {('I', '0'): (0, 0, 10, 0, 20, 0, 30, 0),
+                                 ('I', '1'): (0, 0, 0, 10, 0, 20, 0, 30),
+                                 ('I', '2'): (0, 0, 10, 0, 20, 0, 30, 0),
+                                 ('I', '3'): (0, 0, 0, 10, 0, 20, 0, 30),
+                                 ('J', '0'): (0, 0, 0, 10, 10, 0, 20, 0),
+                                 ('J', '1'): (0, 0, 10, 0, 10, 10, 10, 20),
+                                 ('J', '2'): (0, 10, 10, 10, 20, 10, 20, 0),
+                                 ('J', '3'): (0, 0, 0, 10, 0, 20, 10, 20),
+                                 ('T', '0'): (0, 0, 10, 0, 20, 0, 10, 10),
+                                 ('T', '1'): (10, 0, 10, 10, 10, 20, 0, 10),
+                                 ('T', '2'): (0, 10, 10, 10, 20, 10, 10, 0),
+                                 ('T', '3'): (0, 0, 0, 10, 0, 20, 10, 10),
+                                 ('S', '0'): (0, 0, 10, 0, 10, 10, 20, 10),
+                                 ('S', '1'): (10, 0, 10, 10, 0, 10, 0, 20),
+                                 ('S', '2'): (0, 0, 10, 0, 10, 10, 20, 10),
+                                 ('S', '3'): (10, 0, 10, 10, 0, 10, 0, 20),
+                                 ('Z', '0'): (0, 10, 10, 10, 10, 0, 20, 0),
+                                 ('Z', '1'): (0, 0, 0, 10, 10, 10, 10, 20),
+                                 ('Z', '2'): (0, 10, 10, 10, 10, 0, 20, 0),
+                                 ('Z', '3'): (0, 0, 0, 10, 10, 10, 10, 20),
+                                 ('O', '0'): (0, 0, 10, 0, 0, 10, 10, 10),
+                                 ('O', '1'): (0, 0, 10, 0, 0, 10, 10, 10),
+                                 ('O', '2'): (0, 0, 10, 0, 0, 10, 10, 10),
+                                 ('O', '3'): (0, 0, 10, 0, 0, 10, 10, 10),
+                                 ('L', '0'): (0, 0, 10, 0, 20, 0, 20, 10),
+                                 ('L', '1'): (10, 0, 10, 10, 10, 20, 0, 20),
+                                 ('L', '2'): (0, 0, 0, 10, 10, 10, 20, 10),
+                                 ('L', '3'): (0, 0, 10, 0, 0, 10, 0, 20),
+                                 }
         self.update(self.x_pos, self.y_pos, self.orientation)
 
     def update(self, x, y, orientation='0'):
-        # self.shape = shape
-        # print(self.color)
+        coor_list = self.shape_dictionary[self.shape, orientation]
 
         for num in range(4):
-            self.boxes[num].pos = vector(x * 10, y * 10, 0)
-
-        shape_dictionary = {('I', '0'): (0, 0, 10, 0, 20, 0, 30, 0),
-                            ('I', '1'): (0, 0, 0, 10, 0, 20, 0, 30),
-                            ('I', '2'): (0, 0, 10, 0, 20, 0, 30, 0),
-                            ('I', '3'): (0, 0, 0, 10, 0, 20, 0, 30),
-                            ('J', '0'): (0, 0, 0, 10, 0, 20, 10, 20),
-                            ('J', '1'): (20, 0, 20, 10, 10, 10, 0, 10),
-                            ('J', '2'): (0, 0, 10, 0, 10, 10, 10, 20),
-                            ('J', '3'): (0, 0, 10, 0, 20, 0, 0, 10),
-                            ('L', '0'): (0, 0, 10, 0, 0, 10, 0, 20),
-                            ('L', '1'): (10, 0, 10, 10, 10, 20, 0, 20),
-                            ('L', '2'): (0, 0, 0, 10, 10, 10, 20, 10),
-                            ('L', '3'): (0, 0, 10, 0, 20, 0, 20, 10),
-                            ('S', '0'): (0, 0, 10, 0, 10, 10, 20, 10),
-                            ('S', '1'): (10, 0, 10, 10, 0, 10, 0, 20),
-                            ('S', '2'): (0, 0, 10, 0, 10, 10, 20, 10),
-                            ('S', '3'): (10, 0, 10, 10, 0, 10, 0, 20),
-                            ('Z', '0'): (0, 10, 10, 10, 10, 0, 20, 0),
-                            ('Z', '1'): (0, 10, 10, 10, 10, 0, 20, 0),
-                            ('Z', '2'): (0, 0, 0, 10, 10, 10, 10, 20),
-                            ('Z', '3'): (0, 0, 0, 10, 10, 10, 10, 20),
-                            ('O', '0'): (0, 0, 10, 0, 0, 10, 10, 10),
-                            ('O', '1'): (0, 0, 10, 0, 0, 10, 10, 10),
-                            ('O', '2'): (0, 0, 10, 0, 0, 10, 10, 10),
-                            ('O', '3'): (0, 0, 10, 0, 0, 10, 10, 10),
-                            ('T', '0'): (0, 0, 10, 0, 20, 0, 10, 10),
-                            ('T', '1'): (10, 0, 10, 10, 10, 20, 0, 10),
-                            ('T', '2'): (10, 0, 0, 10, 10, 10, 20, 10),
-                            ('T', '3'): (0, 0, 0, 10, 0, 20, 10, 10),
-                            }
-        coordinate_list = shape_dictionary[self.shape, orientation]
-        for num in range(4):
-            self.boxes[num].pos += vector(coordinate_list[2 * num], coordinate_list[2 * num + 1], 0)
+            self.boxes[num].pos = vector(x * 10, y * 10, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
             self.boxes[num].color = self.color
+
+    def __call__(self, x, y, shape, orientation, colour):
+        self.shape = shape
+        self.color = colour
+        self.update(x, y, orientation)
 
 
 def draw_board(columns, rows):
     """ The board is a dictionary of cubes with coordinates as keys """
-    # scene.center = vector(int(10 * (columns - 1) / 2), int(10 * rows / 2), 0)
+    scene.center = vector(int(10 * (columns - 1) / 2), int(10 * rows / 2), 0)
     x_coordinates, y_coordinates = list(range(columns)), list(range(rows))
     board = {(x, y): box(pos=vector(10 * x, 10 * y, 0), height=8, width=8, length=8, opacity=0.2)
              for x in x_coordinates for y in y_coordinates}
