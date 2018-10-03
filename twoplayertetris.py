@@ -35,13 +35,13 @@ class Player:
         self.tetramino_pos = {0: [5, 20], 1: [5, 20], 2: [5, 20], 3: [5, 20]}
         self.tetramino = Tetramino(50, 200, 'T', colour=self.color)
 
-    def receive_input(self, board, received_inputs, board_status):
+    def receive_input(self, board, received_inputs, board_status, players):
         action_input = None
         for inp in received_inputs:
             if self.inputs.get(inp):
                 action_input = self.inputs[inp]
         if action_input == 's_drop':
-            self.nat_drop(board, board_status)
+            self.nat_drop(board, board_status, players)
         elif action_input == 'h_drop':
             self.hard_drop(board_status)
         elif action_input in (-1, 1):  # -1 and 1 are left and right, respectively
@@ -114,7 +114,7 @@ def main():
             sleep(0.05)
             key = Key_Event
             for player in players:
-                player.receive_input(board, key, board_status)
+                player.receive_input(board, key, board_status, players)
             Key_Event = []
             key = None
         for player in players:
