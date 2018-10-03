@@ -35,7 +35,7 @@ class Player:
         self.tetramino_pos = {0: [5, 20], 1: [5, 20], 2: [5, 20], 3: [5, 20]}
         self.tetramino = Tetramino(50, 200, 'T', colour=self.color)
 
-    def receive_input(self, board, received_inputs, board_status, players):
+    def receive_input(self, board, board_status, player, received_inputs):
         action_input = None
         for inp in received_inputs:
             if self.inputs.get(inp):
@@ -112,11 +112,10 @@ def main():
             red_player.tetramino.update(2, y, '1')
         for _ in range(20):
             sleep(0.05)
-            key = Key_Event
+            received_inputs = Key_Event
             for player in players:
-                player.receive_input(board, key, board_status, players)
+                player.receive_input(board, board_status, players, received_inputs)
             Key_Event = []
-            key = None
         for player in players:
             player.nat_drop(board, board_status, players)
             sleep(.5)
