@@ -73,11 +73,12 @@ class Tetramino:
                                  ('L', '2'): (0, 0, 0, 10, 10, 10, 20, 10),
                                  ('L', '3'): (0, 0, 10, 0, 0, 10, 0, 20),
                                  }
-        self.update(self.x_pos, self.y_pos, self.orientation)
+        self.updater(self.x_pos, self.y_pos, orientation=self.orientation)
 
-    def update(self, x, y, orientation='0'):
-        coor_list = self.shape_dictionary[self.shape, orientation]
-
+    def updater(self, x, y, shape=None, orientation='0'):
+        if not shape:
+            shape = self.shape
+        coor_list = self.shape_dictionary[shape, orientation]
         for num in range(4):
             self.boxes[num].pos = vector(x * 10, y * 10, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
             self.boxes[num].color = self.color
@@ -85,7 +86,7 @@ class Tetramino:
     def __call__(self, x, y, shape, orientation, colour):
         self.shape = shape
         self.color = colour
-        self.update(x, y, orientation)
+        self.updater(x, y, orientation=orientation)
 
 
 def draw_board(columns, rows):
@@ -94,8 +95,9 @@ def draw_board(columns, rows):
     x_coordinates, y_coordinates = list(range(columns)), list(range(rows))
     board = {(x, y): box(pos=vector(10 * x, 10 * y, 0), height=8, width=8, length=8, opacity=0.2)
              for x in x_coordinates for y in y_coordinates}
+    for item in board:
+        board[item].status = False
     board[(-1, -1)] = columns, rows  # Board size gets stored in the board with key (-1, -1)
-    print('Board drawn')
 
     return board
 

@@ -33,56 +33,63 @@ class Player:
                        soft_drop: 's_drop', hard_drop: 'h_drop', left: -1, right: 1}
         self.bag = shuffle(list('IOTSZJL'))
         self.tetramino_pos = {0: [5, 20], 1: [5, 20], 2: [5, 20], 3: [5, 20]}
-        self.tetramino = Tetramino(50, 200, 'T', colour=self.color)
+        self.tetramino = Tetramino(5, 20, 'T', colour=self.color)
 
-    def receive_input(self, board, board_status, players, received_inputs):
+    def receive_input(self, board, players, received_inputs):
         action_input = None
         for inp in received_inputs:
             if self.inputs.get(inp):
                 action_input = self.inputs[inp]
         if action_input == 's_drop':
-            self.nat_drop(board, board_status, players)
+            self.nat_drop(board, players)
         elif action_input == 'h_drop':
-            self.hard_drop(board_status)
+            self.hard_drop(board)
         elif action_input in (-1, 1):  # -1 and 1 are left and right, respectively
-            self.move_tetramino(action_input, board_status)
+            self.move_tetramino(action_input, board)
         elif action_input in ('turn_ws', 'turn_cw'):
-            self.turn_tetramino(action_input, board_status)
+            self.turn_tetramino(action_input, board)
 
-    def nat_drop(self, board, board_status, players):
+    def nat_drop(self, board, players):
         droppable = True
         for num in range(4):
-            tet_pos = self.tetramino_pos[num]
-            if board_status.get(tet_pos[0], tet_pos[1] - 1) or board_status.get(tet_pos[0], tet_pos[1] - 1) is None:
+            # tet_pos = self.tetramino_pos[num]
+            # x, y = self.tetramino.x_pos/10, self.tetramino.y_pos/10 - 1
+            x, y = self.tetramino.boxes[num].pos.x / 10, self.tetramino.boxes[num].pos.y / 10
+            print(num, x, y, self.tetramino.color, board.get((x, y - 1)).status)
+            if board.get((x, y - 1)).status or board.get((x, y - 1)).status is None:
                 droppable = False
         if droppable:
             for num in range(4):
-                self.tetramino_pos[num][1] -= 1
+                self.tetramino.boxes[num].pos.y -= 10
+                print(num, self.tetramino.boxes[num].pos.x / 10, self.tetramino.boxes[num].pos.y / 10)
+                x, y = self.tetramino.boxes[num].pos.x / 10, self.tetramino.boxes[num].pos.y / 10
+                self.tetramino.updater(x, y)
+                # self.tetramino_pos[num][1] -= 1
         else:
-            # player.tetramino.update(2, y)
             for player in players:
                 for num in range(4):
                     player.tetramino.boxes[num].color = self.color
-                    x, y = self.tetramino_pos[num]
+                    print('rap', self.color)
+                    # x, y = self.tetramino_pos[num]
+                    x, y = self.tetramino.boxes[num].pos.x / 10, self.tetramino.boxes[num].pos.y / 10
                     colour = self.tetramino.color
                     change_cube_state(board, x, y, colour=colour, opacity=1, visible=True)
-                    # board_status.get((x, y)).color = self.color
 
-    def hard_drop(self, board_status):
+    def hard_drop(self, board):
         pass
 
-    def move_tetramino(self, action_input, board_status):
+    def move_tetramino(self, action_input, board):
         movable = True
         for num in range(4):
             tet_pos = self.tetramino_pos[num]
-            if board_status.get(tet_pos[0] + action_input, tet_pos[1]) or \
-                    board_status.get(tet_pos[0] + action_input, tet_pos[1]) is None:
+            if board.get(tet_pos[0] + action_input, tet_pos[1]).status or \
+                    board.get(tet_pos[0] + action_input, tet_pos[1]).status is None:
                 movable = False
         if movable:
             for num in range(4):
                 self.tetramino_pos[num][0] += action_input
 
-    def turn_tetramino(self, action_input, board_status):
+    def turn_tetramino(self, action_input, board):
         pass
 
 
@@ -96,7 +103,7 @@ def capture_key(event):
 
 def main():
     global Key_Event
-    board_status = {(x, y): False for x in list(range(10)) for y in list(range(24))}
+    # board_status = {(x, y): False for x in list(range(10)) for y in list(range(24))}
     red_player = Player('q', 'e', 's', 'w', 'a', 'd', color.red)
     blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', color.blue)
     players = [red_player, blue_player]
@@ -106,18 +113,21 @@ def main():
     scene.center = vector(int(10 * (columns - 1) / 2), int(10 * rows / 2), 0)
     scene.autoscale = False
     red_player.tetramino.shape = 'T'
+    blue_player.tetramino.shape = 'Z'
+    red_player.tetramino.updater(2, 20, orientation='0')
+    blue_player.tetramino.updater(7, 20, orientation='0')
     while True:
-        for y in range(10, 0, -1):
-            sleep(.2)
-            red_player.tetramino.update(2, y, '1')
+        # for y in range(10, 0, -1):
+        #     sleep(.2)
+        #     red_player.tetramino.updater(2, y, orientation='0')
         for _ in range(20):
             sleep(0.05)
             received_inputs = Key_Event
             for player in players:
-                player.receive_input(board, board_status, players, received_inputs)
+                player.receive_input(board, players, received_inputs)
             Key_Event = []
         for player in players:
-            player.nat_drop(board, board_status, players)
+            player.nat_drop(board, players)
             sleep(.5)
 
 
