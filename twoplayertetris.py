@@ -32,13 +32,13 @@ class Player:
         self.tetramino_pos = {0: [5, 20], 1: [5, 20], 2: [5, 20], 3: [5, 20]}
         self.tetramino = Tetramino(5, 20, 'T', colour=self.color)
 
-    def receive_input(self, board, players, received_inputs):
+    def receive_input(self, board, received_inputs):
         action_input = None
         for inp in received_inputs:
             if self.inputs.get(inp):
                 action_input = self.inputs[inp]
         if action_input == 's_drop':
-            self.nat_drop(board, players)
+            self.nat_drop(board)
         elif action_input == 'h_drop':
             self.hard_drop(board)
         elif action_input in (-1, 1):  # -1 and 1 are left and right, respectively
@@ -49,7 +49,7 @@ class Player:
     def nat_drop(self, board):
         droppable = True
         for num in range(4):
-            x, y = self.tetramino.boxes[num].pos.x / 10, self.tetramino.boxes[num].pos.y / 10
+            x, y = self.tetramino.boxes[num].pos.x, self.tetramino.boxes[num].pos.y
             if board.get((x, y - 1)):
                 print(num, x, y, self.tetramino.color, board.get((x, y - 1)).status)
                 if board.get((x, y - 1)).status:
@@ -59,13 +59,13 @@ class Player:
         if droppable:
             for num in range(4):
                 # self.tetramino.boxes[num].pos.y -= 10
-                print(num, self.tetramino.boxes[num].pos.x / 10, self.tetramino.boxes[num].pos.y / 10)
-                x, y = self.tetramino.boxes[num].pos.x / 10, (self.tetramino.boxes[num].pos.y / 10) - 1
+                print(num, self.tetramino.boxes[num].pos.x, self.tetramino.boxes[num].pos.y)
+                x, y = self.tetramino.boxes[num].pos.x, self.tetramino.boxes[num].pos.y - 1
                 self.tetramino.updater(x, y)
         else:
             for num in range(4):
                 # self.tetramino.boxes[num].color = self.color
-                x, y = self.tetramino.boxes[num].pos.x / 10, self.tetramino.boxes[num].pos.y / 10
+                x, y = self.tetramino.boxes[num].pos.x, self.tetramino.boxes[num].pos.y
                 colour = self.tetramino.color
                 change_cube_state(board, x, y, colour=colour, opacity=1, visible=True)
 
@@ -104,7 +104,7 @@ def main():
     scene.bind('keydown', capture_key)
     columns, rows = 10, 24
     board = draw_board(columns, rows)
-    scene.center = vector(int(10 * (columns - 1) / 2), int(10 * rows / 2), 0)
+    scene.center = vector(int(1 * (columns - 1) / 2), int(1 * rows / 2), 0)
     scene.autoscale = False
     red_player.tetramino.shape = 'T'
     blue_player.tetramino.shape = 'Z'
@@ -118,7 +118,7 @@ def main():
             sleep(0.05)
             received_inputs = Key_Event
             for player in players:
-                player.receive_input(board, players, received_inputs)
+                player.receive_input(board, received_inputs)
             Key_Event = []
         for player in players:
             player.nat_drop(board)

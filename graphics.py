@@ -36,42 +36,42 @@ class Tetramino:
     """ Types I, O, S, Z, T, J, L """
 
     def __init__(self, x, y, shape='O', colour=color.white):
-        self.x_pos = 10 * x
-        self.y_pos = 10 * y
+        self.x_pos = x
+        self.y_pos = y
         self.shape = shape
         self.color = colour
         self.orientation = '1'
         self.boxes = []
         for _ in range(4):
-            self.boxes.append(box(pos=vector(x, y, 0), height=8, width=8, length=8))
-        self.shape_dictionary = {('I', '0'): (0, 0, 10, 0, 20, 0, 30, 0),
-                                 ('I', '1'): (0, 0, 0, 10, 0, 20, 0, 30),
-                                 ('I', '2'): (0, 0, 10, 0, 20, 0, 30, 0),
-                                 ('I', '3'): (0, 0, 0, 10, 0, 20, 0, 30),
-                                 ('J', '0'): (0, 0, 0, 10, 10, 0, 20, 0),
-                                 ('J', '1'): (0, 0, 10, 0, 10, 10, 10, 20),
-                                 ('J', '2'): (0, 10, 10, 10, 20, 10, 20, 0),
-                                 ('J', '3'): (0, 0, 0, 10, 0, 20, 10, 20),
-                                 ('T', '0'): (0, 0, 10, 0, 20, 0, 10, 10),
-                                 ('T', '1'): (10, 0, 10, 10, 10, 20, 0, 10),
-                                 ('T', '2'): (0, 10, 10, 10, 20, 10, 10, 0),
-                                 ('T', '3'): (0, 0, 0, 10, 0, 20, 10, 10),
-                                 ('S', '0'): (0, 0, 10, 0, 10, 10, 20, 10),
-                                 ('S', '1'): (10, 0, 10, 10, 0, 10, 0, 20),
-                                 ('S', '2'): (0, 0, 10, 0, 10, 10, 20, 10),
-                                 ('S', '3'): (10, 0, 10, 10, 0, 10, 0, 20),
-                                 ('Z', '0'): (0, 10, 10, 10, 10, 0, 20, 0),
-                                 ('Z', '1'): (0, 0, 0, 10, 10, 10, 10, 20),
-                                 ('Z', '2'): (0, 10, 10, 10, 10, 0, 20, 0),
-                                 ('Z', '3'): (0, 0, 0, 10, 10, 10, 10, 20),
-                                 ('O', '0'): (0, 0, 10, 0, 0, 10, 10, 10),
-                                 ('O', '1'): (0, 0, 10, 0, 0, 10, 10, 10),
-                                 ('O', '2'): (0, 0, 10, 0, 0, 10, 10, 10),
-                                 ('O', '3'): (0, 0, 10, 0, 0, 10, 10, 10),
-                                 ('L', '0'): (0, 0, 10, 0, 20, 0, 20, 10),
-                                 ('L', '1'): (10, 0, 10, 10, 10, 20, 0, 20),
-                                 ('L', '2'): (0, 0, 0, 10, 10, 10, 20, 10),
-                                 ('L', '3'): (0, 0, 10, 0, 0, 10, 0, 20),
+            self.boxes.append(box(pos=vector(x, y, 0), height=.8, width=.8, length=.8))
+        self.shape_dictionary = {('I', '0'): (0, 0, 1, 0, 2, 0, 3, 0),
+                                 ('I', '1'): (0, 0, 0, 1, 0, 2, 0, 3),
+                                 ('I', '2'): (0, 0, 1, 0, 2, 0, 3, 0),
+                                 ('I', '3'): (0, 0, 0, 1, 0, 2, 0, 3),
+                                 ('J', '0'): (0, 0, 0, 1, 1, 0, 2, 0),
+                                 ('J', '1'): (0, 0, 1, 0, 1, 1, 1, 2),
+                                 ('J', '2'): (0, 1, 1, 1, 2, 1, 2, 0),
+                                 ('J', '3'): (0, 0, 0, 1, 0, 2, 1, 2),
+                                 ('T', '0'): (0, 0, 1, 0, 2, 0, 1, 1),
+                                 ('T', '1'): (1, 0, 1, 1, 1, 2, 0, 1),
+                                 ('T', '2'): (0, 1, 1, 1, 2, 1, 1, 0),
+                                 ('T', '3'): (0, 0, 0, 1, 0, 2, 1, 1),
+                                 ('S', '0'): (0, 0, 1, 0, 1, 1, 2, 1),
+                                 ('S', '1'): (1, 0, 1, 1, 0, 1, 0, 2),
+                                 ('S', '2'): (0, 0, 1, 0, 1, 1, 2, 1),
+                                 ('S', '3'): (1, 0, 1, 1, 0, 1, 0, 2),
+                                 ('Z', '0'): (0, 1, 1, 1, 1, 0, 2, 0),
+                                 ('Z', '1'): (0, 0, 0, 1, 1, 1, 1, 2),
+                                 ('Z', '2'): (0, 1, 1, 1, 1, 0, 2, 0),
+                                 ('Z', '3'): (0, 0, 0, 1, 1, 1, 1, 2),
+                                 ('O', '0'): (0, 0, 1, 0, 0, 1, 1, 1),
+                                 ('O', '1'): (0, 0, 1, 0, 0, 1, 1, 1),
+                                 ('O', '2'): (0, 0, 1, 0, 0, 1, 1, 1),
+                                 ('O', '3'): (0, 0, 1, 0, 0, 1, 1, 1),
+                                 ('L', '0'): (0, 0, 1, 0, 2, 0, 2, 1),
+                                 ('L', '1'): (1, 0, 1, 1, 1, 2, 0, 2),
+                                 ('L', '2'): (0, 0, 0, 1, 1, 1, 2, 1),
+                                 ('L', '3'): (0, 0, 1, 0, 0, 1, 0, 2),
                                  }
         self.updater(self.x_pos, self.y_pos, orientation=self.orientation)
 
@@ -80,7 +80,7 @@ class Tetramino:
             shape = self.shape
         coor_list = self.shape_dictionary[shape, orientation]
         for num in range(4):
-            self.boxes[num].pos = vector(x * 10, y * 10, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
+            self.boxes[num].pos = vector(x * 1, y * 1, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
             self.boxes[num].color = self.color
 
     def __call__(self, x, y, shape, orientation, colour):
@@ -91,9 +91,9 @@ class Tetramino:
 
 def draw_board(columns, rows):
     """ The board is a dictionary of cubes with coordinates as keys """
-    scene.center = vector(int(10 * (columns - 1) / 2), int(10 * rows / 2), 0)
+    scene.center = vector(int((columns - 1) / 2), int(rows / 2), 0)
     x_coordinates, y_coordinates = list(range(columns)), list(range(rows))
-    board = {(x, y): box(pos=vector(10 * x, 10 * y, 0), height=8, width=8, length=8, opacity=0.2)
+    board = {(x, y): box(pos=vector(x, y, 0), height=.8, width=.8, length=.8, opacity=0.2)
              for x in x_coordinates for y in y_coordinates}
     for item in board:
         board[item].status = False
