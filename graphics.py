@@ -110,12 +110,12 @@ def draw_board(columns, rows):
     return board
 
 
-def change_cube_state(board, x_coordinate, y_coordinate, colour=color.white, opacity=1, visible=True):
+def change_cube_state(board, x_coordinate, y_coordinate, colour=color.white, opacity=1, status=True, visible=True):
     item = board.get((x_coordinate, y_coordinate))
     item.visible = visible
     item.opacity = opacity
     item.color = colour
-    item.status = visible
+    item.status = status
 
 
 def update_board(board, board_status):

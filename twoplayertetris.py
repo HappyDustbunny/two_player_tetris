@@ -66,7 +66,7 @@ class Player:
         for num in range(4):
             x, y = self.tetramino.boxes[num].pos.x, self.tetramino.boxes[num].pos.y
             colour = self.tetramino.color
-            change_cube_state(board, x, y, colour=colour, opacity=1, visible=True)
+            change_cube_state(board, x, y, colour=colour, opacity=1, status=True, visible=True)
         if not self.bag:
             self.bag = list('IOTSZJL')
             shuffle(self.bag)
