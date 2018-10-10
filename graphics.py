@@ -40,7 +40,7 @@ class Tetramino:
         self.y_pos = y
         self.shape = shape
         self.color = colour
-        self.orientation = '1'
+        self.orientation = '0'
         self.boxes = []
         for _ in range(4):
             self.boxes.append(box(pos=vector(x, y, 0), height=.8, width=.8, length=.8))
@@ -75,12 +75,16 @@ class Tetramino:
                                  }
         self.updater(self.x_pos, self.y_pos, orientation=self.orientation)
 
-    def updater(self, x, y, shape=None, orientation='0'):
+    def updater(self, x, y, shape=None, orientation=None):
         if not shape:
             shape = self.shape
+        if not orientation:
+            orientation = self.orientation
         coor_list = self.shape_dictionary[shape, orientation]
+        self.x_pos = x
+        self.y_pos = y
         for num in range(4):
-            self.boxes[num].pos = vector(x * 1, y * 1, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
+            self.boxes[num].pos = vector(x, y, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
             self.boxes[num].color = self.color
 
     def __call__(self, x, y, shape, orientation, colour):
