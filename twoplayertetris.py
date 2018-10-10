@@ -72,9 +72,9 @@ class Player:
             shuffle(self.bag)
         shape = self.bag.pop(0)
         if shape == 'I':
-            x = 4
+            x = 3
         else:
-            x = 5
+            x = 4
         self.tetramino.updater(x, 21, shape=shape, orientation='0')
 
     def hard_drop(self, board):

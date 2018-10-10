@@ -76,9 +76,13 @@ class Tetramino:
         self.updater(self.x_pos, self.y_pos, orientation=self.orientation)
 
     def updater(self, x, y, shape=None, orientation=None):
-        if not shape:
+        if shape:
+            self.shape = shape
+        else:
             shape = self.shape
-        if not orientation:
+        if orientation:
+            self.orientation = orientation
+        else:
             orientation = self.orientation
         coor_list = self.shape_dictionary[shape, orientation]
         self.x_pos = x
@@ -111,6 +115,7 @@ def change_cube_state(board, x_coordinate, y_coordinate, colour=color.white, opa
     item.visible = visible
     item.opacity = opacity
     item.color = colour
+    item.status = visible
 
 
 def update_board(board, board_status):
