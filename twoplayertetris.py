@@ -58,7 +58,7 @@ class Player:
             if board.get((x, y - 1)).status:
                 droppable = False
         if droppable:
-            self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos - 2)
+            self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos - 1)
         else:
             self.landing_procedure(board)
 
@@ -82,17 +82,30 @@ class Player:
 
     def move_tetramino(self, action_input, board):
         movable = True
-        # for num in range(4):
-        #     tet_pos = self.tetramino_pos[num]
-        #     if board.get(tet_pos[0] + action_input, tet_pos[1]).status or \
-        #             board.get(tet_pos[0] + action_input, tet_pos[1]).status is None:
-        #         movable = False
-        # if movable:
-        #     for num in range(4):
-        #         self.tetramino_pos[num][0] += action_input
+        for num in range(4):
+            x, y = self.tetramino.boxes[num].pos.x, self.tetramino.boxes[num].pos.y
+            if not board.get((x + action_input, y)):
+                movable = False
+                continue
+            if board.get((x + action_input, y)).status:
+                movable = False
+        if movable:
+            self.tetramino.updater(self.tetramino.x_pos + action_input, self.tetramino.y_pos)
 
     def turn_tetramino(self, action_input, board):
-        pass
+        if action_input == 'turn_ws':
+            if self.tetramino.orientation == '0':
+                self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation='3')
+            else:
+                new_ori = str(int(self.tetramino.orientation) - 1)
+                self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori)
+        if action_input == 'turn_cw':
+            if self.tetramino.orientation == '3':
+                self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation='0')
+            else:
+                new_ori = str(int(self.tetramino.orientation) + 1)
+                self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori)
+
 
 
 Key_Event = []
@@ -114,17 +127,15 @@ def main():
     board = draw_board(columns, rows)
     scene.center = vector(int(1 * (columns - 1) / 2), int(1 * rows / 2), 0)
     scene.autoscale = False
-    red_player.tetramino.shape = 'T'
-    blue_player.tetramino.shape = 'O'
-    red_player.tetramino.updater(2, 20, orientation='0')
-    blue_player.tetramino.updater(7, 20, orientation='1')
+    red_player.tetramino.updater(2, 20, orientation='0', shape='T')
+    blue_player.tetramino.updater(7, 20, orientation='1', shape='O')
 
     while True:
         # for y in range(10, 0, -1):
         #     sleep(.2)
         #     red_player.tetramino.updater(2, y, orientation='0')
-        for _ in range(20):
-            sleep(0.03)
+        for _ in range(5):
+            sleep(0.15)
             received_inputs = Key_Event
             for player in players:
                 player.receive_input(board, received_inputs)
