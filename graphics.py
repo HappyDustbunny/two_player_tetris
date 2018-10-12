@@ -44,7 +44,8 @@ class Tetramino:
         self.boxes = []
         for _ in range(4):
             self.boxes.append(box(pos=vector(x, y, 0), height=.8, width=.8, length=.8))
-        self.shape_dictionary = {('I', '0'): (0, 0, 1, 0, 2, 0, 3, 0),
+        self.shape_dictionary = {
+                                 ('I', '0'): (0, 0, 1, 0, 2, 0, 3, 0),
                                  ('I', '1'): (0, 0, 0, 1, 0, 2, 0, 3),
                                  ('I', '2'): (0, 0, 1, 0, 2, 0, 3, 0),
                                  ('I', '3'): (0, 0, 0, 1, 0, 2, 0, 3),
@@ -84,9 +85,10 @@ class Tetramino:
             self.orientation = orientation
         else:
             orientation = self.orientation
-        coor_list = self.shape_dictionary[shape, orientation]
-        self.x_pos = x
+
         self.y_pos = y
+        self.x_pos = x
+        coor_list = self.shape_dictionary[shape, orientation]
         for num in range(4):
             self.boxes[num].pos = vector(x, y, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
             self.boxes[num].color = self.color

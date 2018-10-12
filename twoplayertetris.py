@@ -25,13 +25,13 @@ from graphics import change_cube_state, draw_board, Tetramino
 
 class Player:
     def __init__(self, turn_widdershins, turn_clockwise, soft_drop, hard_drop, left, right, colour):
-        self.color = colour
+        # self.color = colour
         self.inputs = {turn_widdershins: 'turn_ws', turn_clockwise: 'turn_cw',
                        soft_drop: 's_drop', hard_drop: 'h_drop', left: -1, right: 1}
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
         # self.tetramino_pos = {0: [5, 20], 1: [5, 20], 2: [5, 20], 3: [5, 20]}
-        self.tetramino = Tetramino(5, 20, 'T', colour=self.color)
+        self.tetramino = Tetramino(5, 20, 'T', colour=colour)
 
     def receive_input(self, board, received_inputs):
         action_input = None
@@ -47,20 +47,44 @@ class Player:
         elif action_input in ('turn_ws', 'turn_cw'):
             self.turn_tetramino(action_input, board)
 
+    def move_tetramino(self, action_input, board):
+        if self.probe(board, self.tetramino.x_pos + action_input, self.tetramino.y_pos):
+            self.tetramino.updater(self.tetramino.x_pos + action_input, self.tetramino.y_pos)
+
+    def turn_tetramino(self, action_input, board):
+        # TODO: If a tetramino tries to turn next to a wall,
+        # TODO: it's supposed to be allowed to move away from the wall to be able to turn.
+
+        # TODO: The turning isn't up to the official standards for how tetraminoes are supposed to turn.
+        if action_input == 'turn_ws':
+            if self.tetramino.orientation == '0':
+                if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos, orientation='3'):
+                    self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation='3')
+            else:
+                new_ori = str(int(self.tetramino.orientation) - 1)
+                if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori):
+                    self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori)
+        if action_input == 'turn_cw':
+            if self.tetramino.orientation == '3':
+                if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos, orientation='0'):
+                    self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation='0')
+            else:
+                new_ori = str(int(self.tetramino.orientation) + 1)
+                if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori):
+                    self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori)
+
     def nat_drop(self, board):
-        droppable = True
-        for num in range(4):
-            x, y = self.tetramino.boxes[num].pos.x, self.tetramino.boxes[num].pos.y
-            if not board.get((x, y - 1)):
-                droppable = False
-                continue
-            print(num, x, y, self.tetramino.color, board.get((x, y - 1)).status)
-            if board.get((x, y - 1)).status:
-                droppable = False
-        if droppable:
+        if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos - 1):
             self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos - 1)
         else:
             self.landing_procedure(board)
+
+    def hard_drop(self, board):
+        for y in range(0, self.tetramino.y_pos):
+            if self.probe(board, self.tetramino.x_pos, y=y):
+                self.tetramino.updater(self.tetramino.x_pos, y=y)
+                # TODO: Decide if landing_procedure should also happen here.
+                return
 
     def landing_procedure(self, board):
         for num in range(4):
@@ -75,37 +99,22 @@ class Player:
             x = 3
         else:
             x = 4
-        self.tetramino.updater(x, 21, shape=shape, orientation='0')
+        self.tetramino.updater(x, y=21, shape=shape, orientation='0')
 
-    def hard_drop(self, board):
-        pass
+    def probe(self, board, x, y, shape=None, orientation=None):
+        if not shape:
+            shape = self.tetramino.shape
+        if not orientation:
+            orientation = self.tetramino.orientation
 
-    def move_tetramino(self, action_input, board):
-        movable = True
+        coor_list = self.tetramino.shape_dictionary[shape, orientation]
         for num in range(4):
-            x, y = self.tetramino.boxes[num].pos.x, self.tetramino.boxes[num].pos.y
-            if not board.get((x + action_input, y)):
-                movable = False
-                continue
-            if board.get((x + action_input, y)).status:
-                movable = False
-        if movable:
-            self.tetramino.updater(self.tetramino.x_pos + action_input, self.tetramino.y_pos)
-
-    def turn_tetramino(self, action_input, board):
-        if action_input == 'turn_ws':
-            if self.tetramino.orientation == '0':
-                self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation='3')
-            else:
-                new_ori = str(int(self.tetramino.orientation) - 1)
-                self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori)
-        if action_input == 'turn_cw':
-            if self.tetramino.orientation == '3':
-                self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation='0')
-            else:
-                new_ori = str(int(self.tetramino.orientation) + 1)
-                self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori)
-
+            probing_coor = x + coor_list[2 * num], y + coor_list[2 * num + 1]
+            if not board.get(probing_coor):
+                return False
+            if board.get(probing_coor).status:
+                return False
+        return True
 
 
 Key_Event = []
@@ -127,8 +136,8 @@ def main():
     board = draw_board(columns, rows)
     scene.center = vector(int(1 * (columns - 1) / 2), int(1 * rows / 2), 0)
     scene.autoscale = False
-    red_player.tetramino.updater(2, 20, orientation='0', shape='T')
-    blue_player.tetramino.updater(7, 20, orientation='1', shape='O')
+    red_player.tetramino.updater(2, 20, shape='T', orientation='0')
+    blue_player.tetramino.updater(7, 20, shape='O', orientation='1')
 
     while True:
         # for y in range(10, 0, -1):
