@@ -7,30 +7,13 @@ from random import shuffle
 from graphics import change_cube_state, draw_board, Tetramino
 
 
-# class MovableBox:
-#     def __init__(self, up, down, left, right, colour):
-#         self.box = box(color=colour)
-#         else:
-#             self.box = box()
-#         self.inputs = {up: vector(0, 1, 0), down: vector(0, -1, 0), left: vector(-1, 0, 0), right: vector(1, 0, 0)}
-#
-#     def receive_input(self, received_inputs):
-#         action_input = None
-#         for inp in received_inputs:
-#             if self.inputs.get(inp):
-#                 action_input = inp
-#         if action_input:
-#             self.box.pos += self.inputs[action_input]
-
-
 class Player:
     def __init__(self, turn_widdershins, turn_clockwise, soft_drop, hard_drop, left, right, colour):
-        # self.color = colour
+        """ Inputs define which keys to use: Player(a,s,w,d,...) """
         self.inputs = {turn_widdershins: 'turn_ws', turn_clockwise: 'turn_cw',
                        soft_drop: 's_drop', hard_drop: 'h_drop', left: -1, right: 1}
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
-        # self.tetramino_pos = {0: [5, 20], 1: [5, 20], 2: [5, 20], 3: [5, 20]}
         self.tetramino = Tetramino(5, 20, 'T', colour=colour)
 
     def receive_input(self, board, received_inputs):
@@ -127,7 +110,6 @@ def capture_key(event):
 
 def main():
     global Key_Event
-    # board_status = {(x, y): False for x in list(range(10)) for y in list(range(24))}
     red_player = Player('q', 'e', 's', 'w', 'a', 'd', color.red)
     blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', color.blue)
     players = [red_player, blue_player]
@@ -140,9 +122,6 @@ def main():
     blue_player.tetramino.updater(7, 20, shape='O', orientation='1')
 
     while True:
-        # for y in range(10, 0, -1):
-        #     sleep(.2)
-        #     red_player.tetramino.updater(2, y, orientation='0')
         for _ in range(5):
             sleep(0.15)
             received_inputs = Key_Event
