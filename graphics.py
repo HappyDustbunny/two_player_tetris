@@ -1,14 +1,14 @@
 """ Graphics for Two Player Tetris """
 
-from vpython import box, color, sleep, scene, vector
+from vpython import box, color, compound, sleep, scene, sphere, vector
 
 
 def main():
     delta_t = 2
     columns, rows = 10, 24
     draw_board(columns, rows)
-    first = Tetramino(0, 0)
-    # first.update_tetramino('I', 'Horizontal')
+    first = Tetromino(0, 0)
+    # first.update_tetromino('I', 'Horizontal')
     for shape in ['T', 'I', 'O', 'S', 'J', 'Z', 'L']:
         for count in range(4):
             first(0, 0, shape, str(count), color.cyan)
@@ -32,18 +32,22 @@ def main():
     #     sleep(0.1)
 
 
-class Tetramino:
+class Tetromino:
     """ Types I, O, S, Z, T, J, L """
 
-    def __init__(self, x, y, shape='O', colour=color.white):
+    def __init__(self, x, y, shape='O', colour=color.white, player='first'):
         self.x_pos = x
         self.y_pos = y
         self.shape = shape
         self.color = colour
         self.orientation = '0'
-        self.boxes = []
+        self.blocks = []
+        radius = 0.23 if player == 'first' else 0.22
         for _ in range(4):
-            self.boxes.append(box(pos=vector(x, y, 0), height=.8, width=.8, length=.8))
+            block = compound([box(pos=vector(x, y, 0), height=.8, width=.8, length=.8),
+                             sphere(pos=vector(x, y, 0.5), radius=radius),
+                             sphere(pos=vector(x, y, -0.5), radius=radius)])
+            self.blocks.append(block)
         self.shape_dictionary = {
                                  ('I', '0'): (0, 0, 1, 0, 2, 0, 3, 0),
                                  ('I', '1'): (0, 0, 0, 1, 0, 2, 0, 3),
@@ -90,8 +94,8 @@ class Tetramino:
         self.x_pos = x
         coor_list = self.shape_dictionary[shape, orientation]
         for num in range(4):
-            self.boxes[num].pos = vector(x, y, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
-            self.boxes[num].color = self.color
+            self.blocks[num].pos = vector(x, y, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
+            self.blocks[num].color = self.color
 
     def __call__(self, x, y, shape, orientation, colour):
         self.shape = shape
