@@ -14,7 +14,7 @@ class Player:
                        soft_drop: 's_drop', hard_drop: 'h_drop', left: -1, right: 1}
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
-        self.tetramino = Tetramino(5, 20, 'T', colour=colour)
+        self.tetramino = Tetramino(5, 20, self.bag.pop(0), colour=colour)
 
     def receive_input(self, board, received_inputs):
         action_input = None
@@ -34,27 +34,40 @@ class Player:
         if self.probe(board, self.tetramino.x_pos + action_input, self.tetramino.y_pos):
             self.tetramino.updater(self.tetramino.x_pos + action_input, self.tetramino.y_pos)
 
-    def turn_tetramino(self, action_input, board):
-        # TODO: If a tetramino tries to turn next to a wall,
-        # TODO: it's supposed to be allowed to move away from the wall to be able to turn.
-
+    def turn_tetramino(self, action_input, board, hope=3):
         # TODO: The turning isn't up to the official standards for how tetraminoes are supposed to turn.
         if action_input == 'turn_ws':
             if self.tetramino.orientation == '0':
                 if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos, orientation='3'):
                     self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation='3')
+                    return
             else:
                 new_ori = str(int(self.tetramino.orientation) - 1)
                 if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori):
                     self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori)
+                    return
         if action_input == 'turn_cw':
             if self.tetramino.orientation == '3':
                 if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos, orientation='0'):
                     self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation='0')
+                    return
             else:
                 new_ori = str(int(self.tetramino.orientation) + 1)
                 if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori):
                     self.tetramino.updater(self.tetramino.x_pos, self.tetramino.y_pos, orientation=new_ori)
+                    return
+        if hope == 3:
+            self.tetramino.x_pos -= 1
+            self.turn_tetramino(action_input, board, hope=2)
+        elif hope == 2:
+            self.tetramino.x_pos += 2
+            self.turn_tetramino(action_input, board, hope=1)
+        elif hope == 1:
+            self.tetramino.x_pos -= 1
+            self.tetramino.y_pos -= 1
+            self.turn_tetramino(action_input, board, hope=0)
+        elif hope == 0:
+            self.tetramino.y_pos += 1
 
     def nat_drop(self, board):
         if self.probe(board, self.tetramino.x_pos, self.tetramino.y_pos - 1):
@@ -63,10 +76,9 @@ class Player:
             self.landing_procedure(board)
 
     def hard_drop(self, board):
-        for y in range(0, self.tetramino.y_pos):
-            if self.probe(board, self.tetramino.x_pos, y=y):
-                self.tetramino.updater(self.tetramino.x_pos, y=y)
-                # TODO: Decide if landing_procedure should also happen here.
+        for y in range(self.tetramino.y_pos, -1, -1):
+            if self.probe(board, self.tetramino.x_pos, y) and not self.probe(board, self.tetramino.x_pos, y - 1):
+                self.tetramino.updater(self.tetramino.x_pos, y)
                 return
 
     def landing_procedure(self, board):
@@ -118,8 +130,6 @@ def main():
     board = draw_board(columns, rows)
     scene.center = vector(int(1 * (columns - 1) / 2), int(1 * rows / 2), 0)
     scene.autoscale = False
-    red_player.tetramino.updater(2, 20, shape='T', orientation='0')
-    blue_player.tetramino.updater(7, 20, shape='O', orientation='1')
 
     while True:
         for _ in range(5):
