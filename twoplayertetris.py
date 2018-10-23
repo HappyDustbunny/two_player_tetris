@@ -84,10 +84,12 @@ class Player:
                 return
 
     def landing_procedure(self, board):
+        affected_lines = []
         for num in range(4):
             x, y = self.tetromino.blocks[num].pos.x, self.tetromino.blocks[num].pos.y
-            colour = self.tetromino.color
-            change_cube_state(board, x, y, colour=colour, opacity=1, status=True, visible=True)
+            if y not in affected_lines:
+                affected_lines.append(y)
+            change_cube_state(board, x, y, colour=self.tetromino.color, opacity=1, status=True, visible=True)
         if not self.bag:
             self.bag = list('IOTSZJL')
             shuffle(self.bag)
@@ -97,6 +99,7 @@ class Player:
         else:
             x = 4
         self.tetromino.updater(x, y=21, shape=shape, orientation='0')
+        line_check(board, affected_lines)
 
     def probe(self, board, x, y, shape=None, orientation=None):
         if not shape:
@@ -112,6 +115,31 @@ class Player:
             if board.get(probing_coor).status:
                 return False
         return True
+
+
+def line_check(board, check_lines, combo=0):
+    for line in check_lines:
+        line_full = True
+        inted_line = int(line)
+        for x in range(board['width']):
+            if not board[(x, inted_line)].status:
+                line_full = False
+        if line_full:
+            clear_lines(board, inted_line)
+            line_check(board, check_lines, combo + 1)
+            return
+    # if combo:
+    #   score(combo) # It will only get here in the recursion loop where it finds no more clearable lines.
+
+
+def clear_lines(board, line_to_clear):
+    for drop_to_line in range(line_to_clear, int(board['height']) - 1):
+        for x in range(board['width']):
+            block_above = board[(x, drop_to_line + 1)]
+            change_cube_state(board, x, drop_to_line, colour=block_above.color, opacity=block_above.opacity,
+                              status=block_above.status, visible=block_above.visible)
+    # As is, it won't update the topmost line, it will merely copy it onto the line below.
+    # This shouldn't be an issue, since the topmost line should always be empty, but it could maybe cause problems.
 
 
 Key_Event = []

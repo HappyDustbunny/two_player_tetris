@@ -111,7 +111,8 @@ def draw_board(columns, rows):
              for x in x_coordinates for y in y_coordinates}
     for item in board:
         board[item].status = False
-    board[(-1, -1)] = columns, rows  # Board size gets stored in the board with key (-1, -1)
+    board['width'] = columns
+    board['height'] = rows  # Board size gets stored in the board with key (-1, -1)
 
     return board
 
