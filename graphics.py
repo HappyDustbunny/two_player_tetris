@@ -1,6 +1,6 @@
 """ Graphics for Two Player Tetris """
 
-from vpython import box, color, compound, sleep, scene, sphere, vector
+from vpython import box, color, compound, sleep, scene, sphere, vector, text
 
 
 def main():
@@ -45,39 +45,39 @@ class Tetromino:
         radius = 0.23 if player == 'first' else 0.22
         for _ in range(4):
             block = compound([box(pos=vector(x, y, 0), height=.8, width=.8, length=.8),
-                             sphere(pos=vector(x, y, 0.5), radius=radius),
-                             sphere(pos=vector(x, y, -0.5), radius=radius)])
+                              sphere(pos=vector(x, y, 0.5), radius=radius),
+                              sphere(pos=vector(x, y, -0.5), radius=radius)])
             self.blocks.append(block)
         self.shape_dictionary = {
-                                 ('I', '0'): (0, 0, 1, 0, 2, 0, 3, 0),
-                                 ('I', '1'): (0, 0, 0, 1, 0, 2, 0, 3),
-                                 ('I', '2'): (0, 0, 1, 0, 2, 0, 3, 0),
-                                 ('I', '3'): (0, 0, 0, 1, 0, 2, 0, 3),
-                                 ('J', '0'): (0, 0, 0, 1, 1, 0, 2, 0),
-                                 ('J', '1'): (0, 0, 1, 0, 1, 1, 1, 2),
-                                 ('J', '2'): (0, 1, 1, 1, 2, 1, 2, 0),
-                                 ('J', '3'): (0, 0, 0, 1, 0, 2, 1, 2),
-                                 ('T', '0'): (0, 0, 1, 0, 2, 0, 1, 1),
-                                 ('T', '1'): (1, 0, 1, 1, 1, 2, 0, 1),
-                                 ('T', '2'): (0, 1, 1, 1, 2, 1, 1, 0),
-                                 ('T', '3'): (0, 0, 0, 1, 0, 2, 1, 1),
-                                 ('S', '0'): (0, 0, 1, 0, 1, 1, 2, 1),
-                                 ('S', '1'): (1, 0, 1, 1, 0, 1, 0, 2),
-                                 ('S', '2'): (0, 0, 1, 0, 1, 1, 2, 1),
-                                 ('S', '3'): (1, 0, 1, 1, 0, 1, 0, 2),
-                                 ('Z', '0'): (0, 1, 1, 1, 1, 0, 2, 0),
-                                 ('Z', '1'): (0, 0, 0, 1, 1, 1, 1, 2),
-                                 ('Z', '2'): (0, 1, 1, 1, 1, 0, 2, 0),
-                                 ('Z', '3'): (0, 0, 0, 1, 1, 1, 1, 2),
-                                 ('O', '0'): (0, 0, 1, 0, 0, 1, 1, 1),
-                                 ('O', '1'): (0, 0, 1, 0, 0, 1, 1, 1),
-                                 ('O', '2'): (0, 0, 1, 0, 0, 1, 1, 1),
-                                 ('O', '3'): (0, 0, 1, 0, 0, 1, 1, 1),
-                                 ('L', '0'): (0, 0, 1, 0, 2, 0, 2, 1),
-                                 ('L', '1'): (1, 0, 1, 1, 1, 2, 0, 2),
-                                 ('L', '2'): (0, 0, 0, 1, 1, 1, 2, 1),
-                                 ('L', '3'): (0, 0, 1, 0, 0, 1, 0, 2),
-                                 }
+            ('I', '0'): (0, 0, 1, 0, 2, 0, 3, 0),
+            ('I', '1'): (0, 0, 0, 1, 0, 2, 0, 3),
+            ('I', '2'): (0, 0, 1, 0, 2, 0, 3, 0),
+            ('I', '3'): (0, 0, 0, 1, 0, 2, 0, 3),
+            ('J', '0'): (0, 0, 0, 1, 1, 0, 2, 0),
+            ('J', '1'): (0, 0, 1, 0, 1, 1, 1, 2),
+            ('J', '2'): (0, 1, 1, 1, 2, 1, 2, 0),
+            ('J', '3'): (0, 0, 0, 1, 0, 2, 1, 2),
+            ('T', '0'): (0, 0, 1, 0, 2, 0, 1, 1),
+            ('T', '1'): (1, 0, 1, 1, 1, 2, 0, 1),
+            ('T', '2'): (0, 1, 1, 1, 2, 1, 1, 0),
+            ('T', '3'): (0, 0, 0, 1, 0, 2, 1, 1),
+            ('S', '0'): (0, 0, 1, 0, 1, 1, 2, 1),
+            ('S', '1'): (1, 0, 1, 1, 0, 1, 0, 2),
+            ('S', '2'): (0, 0, 1, 0, 1, 1, 2, 1),
+            ('S', '3'): (1, 0, 1, 1, 0, 1, 0, 2),
+            ('Z', '0'): (0, 1, 1, 1, 1, 0, 2, 0),
+            ('Z', '1'): (0, 0, 0, 1, 1, 1, 1, 2),
+            ('Z', '2'): (0, 1, 1, 1, 1, 0, 2, 0),
+            ('Z', '3'): (0, 0, 0, 1, 1, 1, 1, 2),
+            ('O', '0'): (0, 0, 1, 0, 0, 1, 1, 1),
+            ('O', '1'): (0, 0, 1, 0, 0, 1, 1, 1),
+            ('O', '2'): (0, 0, 1, 0, 0, 1, 1, 1),
+            ('O', '3'): (0, 0, 1, 0, 0, 1, 1, 1),
+            ('L', '0'): (0, 0, 1, 0, 2, 0, 2, 1),
+            ('L', '1'): (1, 0, 1, 1, 1, 2, 0, 2),
+            ('L', '2'): (0, 0, 0, 1, 1, 1, 2, 1),
+            ('L', '3'): (0, 0, 1, 0, 0, 1, 0, 2),
+        }
         self.updater(self.x_pos, self.y_pos, orientation=self.orientation)
 
     def updater(self, x, y, shape=None, orientation=None):
@@ -113,6 +113,9 @@ def draw_board(columns, rows):
         board[item].status = False
     board['width'] = columns
     board['height'] = rows  # Board size gets stored in the board with key (-1, -1)
+    board['level'] = 1
+    board['points'] = 0
+    board['point_display'] = text(pos=vector(-4, 18, 0), text='0', color=color.green)
 
     return board
 
@@ -131,6 +134,13 @@ def update_board(board, board_status):
         for x in range(columns):
             cube = board.get((x, y))
             cube.visible, cube.color, cube.opacity = board_status.get((x, y))
+
+
+def show_points(board, points):
+    board['point_display'].visible = False
+    board['point_display'].text = text(pos=vector(-4, 18, 0), text=str(points), color=color.green)
+#TODO Programmet kan ikke lide at jeg gemmer et nyt textobjekt samme sted som et imutable object - tror jeg...
+    print('gyr')
 
 
 if __name__ == '__main__':

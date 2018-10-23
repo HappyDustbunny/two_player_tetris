@@ -4,7 +4,7 @@ from vpython import color, scene, sleep, vector
 
 from random import shuffle
 
-from graphics import change_cube_state, draw_board, Tetromino
+from graphics import change_cube_state, draw_board, show_points, Tetromino
 
 
 class Player:
@@ -117,6 +117,14 @@ class Player:
         return True
 
 
+def score(board, lines_cleared):
+    point_dict = {1: 100, 2: 300, 3: 500, 4: 800}
+    points = point_dict[lines_cleared] * board['level']  # The level is stored in board with key 'level'
+    board['points'] += points
+    print(board['points'])
+    show_points(board, points)
+
+
 def line_check(board, check_lines, combo=0):
     for line in check_lines:
         line_full = True
@@ -171,6 +179,8 @@ def main():
             Key_Event = []
         for player in players:
             player.nat_drop(board)
+        score(board, 3)
+        print('Bzz')
 
 
 if __name__ == '__main__':

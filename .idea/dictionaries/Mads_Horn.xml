@@ -2,10 +2,13 @@
   <dictionary name="Mads Horn">
     <words>
       <w>autoscale</w>
+      <w>coor</w>
       <w>droppable</w>
       <w>iotszjl</w>
       <w>keydown</w>
       <w>tetris</w>
+      <w>tetromino</w>
+      <w>tetrominoes</w>
       <w>widdershins</w>
     </words>
   </dictionary>
