@@ -93,12 +93,13 @@ class Player:
             if y not in affected_lines:
                 affected_lines.append(y)
             change_cube_state(board, x, y, colour=self.tetromino.color, opacity=1, status=True, visible=True)
+        line_check(board, affected_lines)
+
         shape = self.next_tetromino.shape
         if shape == 'I':
             x = 3
         else:
             x = 4
-        line_check(board, affected_lines)
         if self.probe(board, x=x, y=21, shape=shape, orientation='0'):
             self.tetromino.updater(x, y=21, shape=shape, orientation='0')
             if not self.bag:
@@ -153,8 +154,8 @@ def clear_lines(board, line_to_clear):
     for drop_to_line in range(line_to_clear, int(board['height']) - 1):
         for x in range(board['width']):
             block_above = board[(x, drop_to_line + 1)]
-            change_cube_state(board, x, drop_to_line, colour=block_above.color, opacity=block_above.opacity,
-                              status=block_above.status, visible=block_above.visible)
+            change_cube_state(board, x_coordinate=x, y_coordinate=drop_to_line, colour=block_above.color,
+                              opacity=block_above.opacity, status=block_above.status, visible=block_above.visible)
     # As is, it won't update the topmost line, it will merely copy it onto the line below.
     # This shouldn't be an issue, since the topmost line should always be empty, but it could maybe cause problems.
 
