@@ -127,11 +127,11 @@ class Player:
 
 
 def score(board, lines_cleared):
-    point_dict = {1: 100, 2: 300, 3: 500, 4: 800}
+    point_dict = {0: 100, 1: 300, 2: 500, 3: 800}
     points = point_dict[lines_cleared] * board['level']  # The level is stored in board with key 'level'
     board['points'] += points
     print(board['points'])
-    show_points(board, points)
+    show_points(board, board['points'])
 
 
 def line_check(board, check_lines, combo=0):
@@ -143,10 +143,11 @@ def line_check(board, check_lines, combo=0):
                 line_full = False
         if line_full:
             clear_lines(board, inted_line)
+            score(board, inted_line)
             line_check(board, check_lines, combo + 1)
             return
     if combo:
-        score(board,combo)
+        score(board, combo)
         # It will only get here in the recursion loop where it finds no more clearable lines.
 
 
