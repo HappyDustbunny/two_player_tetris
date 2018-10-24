@@ -8,15 +8,17 @@ from graphics import change_cube_state, draw_board, show_points, Tetromino
 
 
 class Player:
-    def __init__(self, turn_widdershins, turn_clockwise, soft_drop, hard_drop, left, right, colour, player):
+    def __init__(self, turn_widdershins, turn_clockwise, soft_drop, hard_drop, left, right, colour, player_number):
         """ Inputs define which keys to use: Player(a,s,w,d,...)
             player can be 'first' or 'second' Needed to discern players in case of overlap """
-        self.player = player
+        self.player_number = player_number
         self.inputs = {turn_widdershins: 'turn_ws', turn_clockwise: 'turn_cw',
                        soft_drop: 's_drop', hard_drop: 'h_drop', left: -1, right: 1}
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
-        self.tetromino = Tetromino(5, 20, self.bag.pop(0), colour=colour, player=self.player)
+        self.tetromino = Tetromino(5, 20, self.bag.pop(0), colour=colour, player=self.player_number)
+        self.next_tetromino = Tetromino(-5 if player_number == 'first' else 15, 16, self.bag.pop(0),
+                                        colour=colour, player=player_number)
 
     def receive_input(self, board, received_inputs):
         action_input = None
@@ -75,7 +77,8 @@ class Player:
         if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos - 1):
             self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos - 1)
         else:
-            self.landing_procedure(board)
+            loss_check = self.landing_procedure(board)
+            return loss_check
 
     def hard_drop(self, board):
         for y in range(self.tetromino.y_pos, -1, -1):
@@ -90,16 +93,21 @@ class Player:
             if y not in affected_lines:
                 affected_lines.append(y)
             change_cube_state(board, x, y, colour=self.tetromino.color, opacity=1, status=True, visible=True)
-        if not self.bag:
-            self.bag = list('IOTSZJL')
-            shuffle(self.bag)
-        shape = self.bag.pop(0)
+        shape = self.next_tetromino.shape
         if shape == 'I':
             x = 3
         else:
             x = 4
-        self.tetromino.updater(x, y=21, shape=shape, orientation='0')
         line_check(board, affected_lines)
+        if self.probe(board, x=x, y=21, shape=shape, orientation='0'):
+            self.tetromino.updater(x, y=21, shape=shape, orientation='0')
+            if not self.bag:
+                self.bag = list('IOTSZJL')
+                shuffle(self.bag)
+            shape = self.bag.pop(0)
+            self.next_tetromino.updater(x=self.next_tetromino.x_pos, y=self.next_tetromino.y_pos, shape=shape)
+        else:
+            return 'FAILURE'
 
     def probe(self, board, x, y, shape=None, orientation=None):
         if not shape:
@@ -136,8 +144,9 @@ def line_check(board, check_lines, combo=0):
             clear_lines(board, inted_line)
             line_check(board, check_lines, combo + 1)
             return
-    # if combo:
-    #   score(combo) # It will only get here in the recursion loop where it finds no more clearable lines.
+    if combo:
+        score(board,combo)
+        # It will only get here in the recursion loop where it finds no more clearable lines.
 
 
 def clear_lines(board, line_to_clear):
@@ -160,8 +169,8 @@ def capture_key(event):
 
 def main():
     global Key_Event
-    red_player = Player('q', 'e', 's', 'w', 'a', 'd', color.red, player='first')
-    blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', color.blue, player='second')
+    red_player = Player('q', 'e', 's', 'w', 'a', 'd', color.red, player_number='first')
+    blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', color.blue, player_number='second')
     players = [red_player, blue_player]
     scene.bind('keydown', capture_key)
     columns, rows = 10, 24
@@ -178,9 +187,9 @@ def main():
                 player.receive_input(board, received_inputs)
             Key_Event = []
         for player in players:
-            player.nat_drop(board)
-        score(board, 3)
-        print('Bzz')
+            loss_check = player.nat_drop(board)
+            if loss_check == 'FAILURE':
+                return
 
 
 if __name__ == '__main__':

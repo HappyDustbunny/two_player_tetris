@@ -137,6 +137,7 @@ def update_board(board, board_status):
 
 
 def show_points(board, points):
+    return
     board['point_display'].visible = False
     board['point_display'].text = text(pos=vector(-4, 18, 0), text=str(points), color=color.green)
 #TODO Programmet kan ikke lide at jeg gemmer et nyt textobjekt samme sted som et imutable object - tror jeg...
