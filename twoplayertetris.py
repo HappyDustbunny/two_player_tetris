@@ -12,8 +12,14 @@ class Player:
         """ Inputs define which keys to use: Player(a,s,w,d,...)
             player can be 'first' or 'second' Needed to discern players in case of overlap """
         self.player_number = player_number
-        self.inputs = {turn_widdershins: 'turn_ws', turn_clockwise: 'turn_cw',
-                       soft_drop: 's_drop', hard_drop: 'h_drop', left: -1, right: 1}
+        self.inputs = {
+            turn_widdershins: (self.turn_tetromino, -1),
+            turn_clockwise: (self.turn_tetromino, 1),
+            soft_drop: (self.nat_drop, None),
+            hard_drop: (self.hard_drop, None),
+            left: (self.move_tetromino, -1),
+            right: (self.move_tetromino, 1),
+        }
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
         self.tetromino = Tetromino(5, 20, self.bag.pop(0), colour=colour, player=self.player_number)
@@ -25,41 +31,19 @@ class Player:
         for inp in received_inputs:
             if self.inputs.get(inp):
                 action_input = self.inputs[inp]
-        if action_input == 's_drop':
-            self.nat_drop(board)
-        elif action_input == 'h_drop':
-            self.hard_drop(board)
-        elif action_input in (-1, 1):  # -1 and 1 are left and right, respectively
-            self.move_tetromino(action_input, board)
-        elif action_input in ('turn_ws', 'turn_cw'):
-            self.turn_tetromino(action_input, board)
+        if action_input:
+            action_input[0](board, action_input[1])
 
-    def move_tetromino(self, action_input, board):
+    def move_tetromino(self, board, action_input):
         if self.probe(board, self.tetromino.x_pos + action_input, self.tetromino.y_pos):
             self.tetromino.updater(self.tetromino.x_pos + action_input, self.tetromino.y_pos)
 
-    def turn_tetromino(self, action_input, board, hope=3):
+    def turn_tetromino(self, board, action_input, hope=3):
         # TODO: The turning isn't up to the official standards for how tetrominoes are supposed to turn.
-        if action_input == 'turn_ws':
-            if self.tetromino.orientation == '0':
-                if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos, orientation='3'):
-                    self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos, orientation='3')
-                    return
-            else:
-                new_ori = str(int(self.tetromino.orientation) - 1)
-                if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori):
-                    self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori)
-                    return
-        if action_input == 'turn_cw':
-            if self.tetromino.orientation == '3':
-                if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos, orientation='0'):
-                    self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos, orientation='0')
-                    return
-            else:
-                new_ori = str(int(self.tetromino.orientation) + 1)
-                if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori):
-                    self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori)
-                    return
+        new_ori = str((int(self.tetromino.orientation) + action_input) % 4)
+        if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori):
+            self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori)
+            return
         if hope == 3:
             self.tetromino.x_pos -= 1
             self.turn_tetromino(action_input, board, hope=2)
@@ -73,14 +57,14 @@ class Player:
         elif hope == 0:
             self.tetromino.y_pos += 1
 
-    def nat_drop(self, board):
+    def nat_drop(self, board, action_input=None):
         if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos - 1):
             self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos - 1)
         else:
             loss_check = self.landing_procedure(board)
             return loss_check
 
-    def hard_drop(self, board):
+    def hard_drop(self, board, action_input=None):
         for y in range(self.tetromino.y_pos, -1, -1):
             if self.probe(board, self.tetromino.x_pos, y) and not self.probe(board, self.tetromino.x_pos, y - 1):
                 self.tetromino.updater(self.tetromino.x_pos, y)
@@ -119,7 +103,7 @@ class Player:
         coor_list = self.tetromino.shape_dictionary[shape, orientation]
         for num in range(4):
             probing_coor = x + coor_list[2 * num], y + coor_list[2 * num + 1]
-            if not board.get(probing_coor):
+            if not board.get(probing_coor):  # Checks if coordinate is in the board
                 return False
             if board.get(probing_coor).status:
                 return False
