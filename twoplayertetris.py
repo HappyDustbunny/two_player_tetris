@@ -34,28 +34,25 @@ class Player:
         if action_input:
             action_input[0](board, action_input[1])
 
-    def move_tetromino(self, board, action_input):
-        if self.probe(board, self.tetromino.x_pos + action_input, self.tetromino.y_pos):
-            self.tetromino.updater(self.tetromino.x_pos + action_input, self.tetromino.y_pos)
+    def move_tetromino(self, board, move_dir):
+        if self.probe(board, self.tetromino.x_pos + move_dir, self.tetromino.y_pos):
+            self.tetromino.updater(self.tetromino.x_pos + move_dir, self.tetromino.y_pos)
 
-    def turn_tetromino(self, board, action_input, hope=3):
+    def turn_tetromino(self, board, turn_dir, hope=3):
         # TODO: The turning isn't up to the official standards for how tetrominoes are supposed to turn.
-        new_ori = str((int(self.tetromino.orientation) + action_input) % 4)
+        new_ori = str((int(self.tetromino.orientation) + turn_dir) % 4)
         if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori):
             self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori)
             return
-        if hope == 3:
-            self.tetromino.x_pos -= 1
-            self.turn_tetromino(action_input, board, hope=2)
-        elif hope == 2:
-            self.tetromino.x_pos += 2
-            self.turn_tetromino(action_input, board, hope=1)
-        elif hope == 1:
-            self.tetromino.x_pos -= 1
-            self.tetromino.y_pos -= 1
-            self.turn_tetromino(action_input, board, hope=0)
-        elif hope == 0:
-            self.tetromino.y_pos += 1
+
+        hope_dict = {
+            3: (-1, 0), 2: (2, 0), 1: (-1, -1), 0: (0, 1)
+        } # TODO: Maybe add seperate hope_dictionaries for the different shapes?
+        # TODO: As is, the I tetromino refuses to use hope-turning if it's too close to a wall.
+        self.tetromino.x_pos += hope_dict[hope][0]
+        self.tetromino.y_pos += hope_dict[hope][1]
+        if hope > 0:
+            self.turn_tetromino(board, turn_dir, hope - 1)
 
     def nat_drop(self, board, action_input=None):
         if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos - 1):
@@ -110,14 +107,6 @@ class Player:
         return True
 
 
-def score(board, lines_cleared):
-    point_dict = {0: 100, 1: 300, 2: 500, 3: 800}
-    points = point_dict[lines_cleared] * board['level']  # The level is stored in board with key 'level'
-    board['points'] += points
-    print(board['points'])
-    show_points(board, board['points'])
-
-
 def line_check(board, check_lines, combo=0):
     for line in check_lines:
         line_full = True
@@ -130,9 +119,16 @@ def line_check(board, check_lines, combo=0):
             score(board, inted_line)
             line_check(board, check_lines, combo + 1)
             return
-    if combo:
+    if combo != 0:
         score(board, combo)
         # It will only get here in the recursion loop where it finds no more clearable lines.
+
+
+def score(board, lines_cleared):
+    points = {0: 0, 1: 100, 2: 300, 3: 500, 4: 800}[lines_cleared] * board['level']
+    board['points'] += points
+    print(board['points'])
+    show_points(board, board['points'])
 
 
 def clear_lines(board, line_to_clear):
