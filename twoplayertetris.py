@@ -38,21 +38,15 @@ class Player:
         if self.probe(board, self.tetromino.x_pos + move_dir, self.tetromino.y_pos):
             self.tetromino.updater(self.tetromino.x_pos + move_dir, self.tetromino.y_pos)
 
-    def turn_tetromino(self, board, turn_dir, hope=3):
+    def turn_tetromino(self, board, turn_dir):
         # TODO: The turning isn't up to the official standards for how tetrominoes are supposed to turn.
         new_ori = str((int(self.tetromino.orientation) + turn_dir) % 4)
-        if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori):
-            self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos, orientation=new_ori)
-            return
-
-        hope_dict = {
-            3: (-1, 0), 2: (2, 0), 1: (-1, -1), 0: (0, 1)
-        } # TODO: Maybe add seperate hope_dictionaries for the different shapes?
-        # TODO: As is, the I tetromino refuses to use hope-turning if it's too close to a wall.
-        self.tetromino.x_pos += hope_dict[hope][0]
-        self.tetromino.y_pos += hope_dict[hope][1]
-        if hope > 0:
-            self.turn_tetromino(board, turn_dir, hope - 1)
+        modifier_tuple = ((0, 0), (-1, 0), (1, 0), (0, -1), (0, 1))
+        for x_mod, y_mod in modifier_tuple:
+            if self.probe(board, self.tetromino.x_pos + x_mod, self.tetromino.y_pos + y_mod, orientation=new_ori):
+                self.tetromino.updater(self.tetromino.x_pos + x_mod, self.tetromino.y_pos + y_mod, orientation=new_ori)
+                return
+        # TODO: As is, the I tetromino refuses to use move itself to turn if it's too close to a wall.
 
     def nat_drop(self, board, action_input=None):
         if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos - 1):
