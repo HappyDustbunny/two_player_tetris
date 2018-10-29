@@ -13,6 +13,7 @@ class Player:
             player can be 'first' or 'second' Needed to discern players in case of overlap """
         self.player_number = player_number
         self.inputs = {
+            # This dictionary stores the functions for navigation as tuples with (functions, argument)
             turn_widdershins: (self.turn_tetromino, -1),
             turn_clockwise: (self.turn_tetromino, 1),
             soft_drop: (self.nat_drop, None),
@@ -29,10 +30,10 @@ class Player:
     def receive_input(self, board, received_inputs):
         action_input = None
         for inp in received_inputs:
-            if self.inputs.get(inp):
+            if self.inputs.get(inp): # Inputs not bound to actions is ignored here
                 action_input = self.inputs[inp]
         if action_input:
-            action_input[0](board, action_input[1])
+            action_input[0](board, action_input[1]) # The dictionary for actions stores tuples with (function, argument)
 
     def move_tetromino(self, board, move_dir):
         if self.probe(board, self.tetromino.x_pos + move_dir, self.tetromino.y_pos):
@@ -41,7 +42,7 @@ class Player:
     def turn_tetromino(self, board, turn_dir):
         # TODO: The turning isn't up to the official standards for how tetrominoes are supposed to turn.
         new_ori = str((int(self.tetromino.orientation) + turn_dir) % 4)
-        modifier_tuple = ((0, 0), (-1, 0), (1, 0), (0, -1), (0, 1))
+        modifier_tuple = ((0, 0), (-1, 0), (1, 0), (0, -1))
         for x_mod, y_mod in modifier_tuple:
             if self.probe(board, self.tetromino.x_pos + x_mod, self.tetromino.y_pos + y_mod, orientation=new_ori):
                 self.tetromino.updater(self.tetromino.x_pos + x_mod, self.tetromino.y_pos + y_mod, orientation=new_ori)
@@ -71,12 +72,8 @@ class Player:
         line_check(board, affected_lines)
 
         shape = self.next_tetromino.shape
-        if shape == 'I':
-            x = 3
-        else:
-            x = 4
-        if self.probe(board, x=x, y=21, shape=shape, orientation='0'):
-            self.tetromino.updater(x, y=21, shape=shape, orientation='0')
+        if self.probe(board, x=4, y=21, shape=shape, orientation='0'):
+            self.tetromino.updater(4, y=21, shape=shape, orientation='0')
             if not self.bag:
                 self.bag = list('IOTSZJL')
                 shuffle(self.bag)
@@ -110,7 +107,6 @@ def line_check(board, check_lines, combo=0):
                 line_full = False
         if line_full:
             clear_lines(board, inted_line)
-            score(board, inted_line)
             line_check(board, check_lines, combo + 1)
             return
     if combo != 0:
@@ -157,7 +153,8 @@ def main():
 
     while True:
         for _ in range(5):
-            sleep(0.15)
+            sleep(0.5)
+            # sleep(0.15)
             received_inputs = Key_Event
             for player in players:
                 player.receive_input(board, received_inputs)
