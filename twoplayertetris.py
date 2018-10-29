@@ -23,9 +23,10 @@ class Player:
         }
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
-        self.tetromino = Tetromino(5, 20, self.bag.pop(0), colour=colour, player=self.player_number)
+        self.tetromino = Tetromino(5, 20, self.bag.pop(0), colour=colour, player=self.player_number, opacity=1)
         self.next_tetromino = Tetromino(-5 if player_number == 'first' else 15, 16, self.bag.pop(0),
                                         colour=colour, player=player_number)
+        self.shadow = Tetromino(5, 20, self.tetromino.shape, colour=colour, player=self.player_number, opacity=0.5)
 
     def receive_input(self, board, received_inputs):
         action_input = None
@@ -34,6 +35,7 @@ class Player:
                 action_input = self.inputs[inp]
         if action_input:
             action_input[0](board, action_input[1]) # The dictionary for actions stores tuples with (function, argument)
+            self.update_shadow(board)
 
     def move_tetromino(self, board, move_dir):
         if self.probe(board, self.tetromino.x_pos + move_dir, self.tetromino.y_pos):
@@ -82,6 +84,13 @@ class Player:
         else:
             return 'FAILURE'
 
+    def update_shadow(self, board):
+        for y in range(self.tetromino.y_pos, -1, -1):
+            if self.probe(board, self.tetromino.x_pos, y) and not self.probe(board, self.tetromino.x_pos, y - 1):
+                self.shadow.updater(self.tetromino.x_pos, y,
+                                    shape=self.tetromino.shape, orientation=self.tetromino.orientation)
+                return
+
     def probe(self, board, x, y, shape=None, orientation=None):
         if not shape:
             shape = self.tetromino.shape
@@ -98,19 +107,23 @@ class Player:
         return True
 
 
-def line_check(board, check_lines, combo=0):
-    for line in check_lines:
-        line_full = True
-        inted_line = int(line)
-        for x in range(board['width']):
-            if not board[(x, inted_line)].status:
-                line_full = False
-        if line_full:
-            clear_lines(board, inted_line)
-            line_check(board, check_lines, combo + 1)
-            return
-    if combo != 0:
-        score(board, combo)
+def line_check(board, check_lines):
+    cleared_lines = 0
+    all_checked = False
+    while not all_checked:
+        all_checked = True
+        for line in check_lines:
+            line_full = True
+            inted_line = int(line)
+            for x in range(board['width']):
+                if not board[(x, inted_line)].status:
+                    line_full = False
+            if line_full:
+                clear_lines(board, inted_line)
+                cleared_lines += 1
+                all_checked = False
+    if cleared_lines > 0:
+        score(board, cleared_lines)
         # It will only get here in the recursion loop where it finds no more clearable lines.
 
 
@@ -153,8 +166,7 @@ def main():
 
     while True:
         for _ in range(5):
-            sleep(0.5)
-            # sleep(0.15)
+            sleep(0.15)
             received_inputs = Key_Event
             for player in players:
                 player.receive_input(board, received_inputs)
@@ -163,6 +175,7 @@ def main():
             loss_check = player.nat_drop(board)
             if loss_check == 'FAILURE':
                 return
+            player.update_shadow(board)
 
 
 if __name__ == '__main__':

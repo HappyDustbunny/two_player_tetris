@@ -35,7 +35,7 @@ def main():
 class Tetromino:
     """ Types I, O, S, Z, T, J, L """
 
-    def __init__(self, x, y, shape='O', colour=color.white, player='first'):
+    def __init__(self, x, y, shape='O', colour=color.white, player='first', opacity=1):
         self.x_pos = x
         self.y_pos = y
         self.shape = shape
@@ -44,9 +44,9 @@ class Tetromino:
         self.blocks = []
         radius = 0.23 if player == 'first' else 0.22
         for _ in range(4):
-            block = compound([box(pos=vector(x, y, 0), height=.8, width=.8, length=.8),
-                              sphere(pos=vector(x, y, 0.5), radius=radius),
-                              sphere(pos=vector(x, y, -0.5), radius=radius)])
+            block = compound([box(pos=vector(x, y, 0), height=.8, width=.8, length=.8, opacity=opacity),
+                              sphere(pos=vector(x, y, 0.5), radius=radius, opacity=opacity),
+                              sphere(pos=vector(x, y, -0.5), radius=radius, opacity=opacity)])
             self.blocks.append(block)
         self.shape_dictionary = {
             ('I', '0'): (-1, 0, 0, 0, 1, 0, 2, 0),
@@ -115,7 +115,7 @@ def draw_board(columns, rows):
     board['height'] = rows  # Board size gets stored in the board with key (-1, -1)
     board['level'] = 1
     board['points'] = 0
-    board['point_display'] = text(pos=vector(-4, 18, 0), text='0', color=color.green)
+    board['point_display'] = text(pos=vector(-4, 18, 0), text='0', color=vector(0.6,0.4,0.8))
 
     return board
 
@@ -139,7 +139,7 @@ def update_board(board, board_status):
 def show_points(board, points):
     board['point_display'].visible = False
     del (board['point_display'])
-    board['point_display'] = text(pos=vector(-6, 18, 0), text=str(points), color=color.green)
+    board['point_display'] = text(pos=vector(-6, 18, 0), text=str(points), color=vector(0.6,0.4,0.8))
 
 
 if __name__ == '__main__':
