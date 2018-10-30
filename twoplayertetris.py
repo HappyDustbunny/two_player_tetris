@@ -4,7 +4,7 @@ from vpython import box, color, scene, sleep, text, vector
 
 from random import shuffle
 
-from graphics import change_cube_state, display_game_over, draw_board, show_points, Tetromino
+from graphics import change_cube_state, display_game_over, draw_board, show_points, Tetromino, turn_board_off
 
 
 class Player:
@@ -43,7 +43,7 @@ class Player:
             self.tetromino.updater(self.tetromino.x_pos + move_dir, self.tetromino.y_pos)
 
     def turn_tetromino(self, board, turn_dir):
-        # TODO: The turning isn't up to the official standards for how tetrominoes are supposed to turn.
+        # TODO: Check if turning is up to the official standards for how tetrominoes are supposed to turn.
         new_ori = str((int(self.tetromino.orientation) + turn_dir) % 4)
         modifier_list = [(0, 0), (-turn_dir, 0), (turn_dir, 0), (0, -1)]
         if self.tetromino.shape == 'I' and self.tetromino.orientation in '13':  # Ugly solution.
@@ -91,8 +91,8 @@ class Player:
     def update_shadow(self, board):
         for y in range(self.tetromino.y_pos, -1, -1):
             if self.probe(board, self.tetromino.x_pos, y) and not self.probe(board, self.tetromino.x_pos, y - 1):
-                self.shadow.updater(self.tetromino.x_pos, y,
-                                    shape=self.tetromino.shape, orientation=self.tetromino.orientation)
+                self.shadow.updater(self.tetromino.x_pos, y, shape=self.tetromino.shape,
+                                    orientation=self.tetromino.orientation)
                 return
 
     def probe(self, board, x, y, shape=None, orientation=None):
@@ -110,11 +110,19 @@ class Player:
                 return False
         return True
 
-    def reset_board(self, board):
+    def reset_game(self, board):
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
         self.next_tetromino.updater(x=self.next_tetromino.x_pos, y=self.next_tetromino.y_pos, shape=self.bag.pop(0))
         self.move_to_top(board)
+
+    def turn_off_tetrominoes(self):  # Turn all tetrominoes off
+        for block in self.tetromino.blocks:
+            block.visible = False
+        for block in self.next_tetromino.blocks:
+            block.visible = False
+        for block in self.shadow.blocks:
+            block.visible = False
 
 
 def line_check(board, check_lines):
@@ -160,31 +168,24 @@ def game_over(board, players):
     while True:
         received_inputs = Key_Event
         for event in received_inputs:
+            if received_inputs:
+                display_game_over(board, False)
             if event == 'e':  # Tidy up and exits game
-                display_game_over(board, False)  # Turn GAME OVER message off
-                for item in board:  # Turn board off
-                    if isinstance(board[item], box):
-                        board[item].visible = False
-                board['point_display'].visible = False
-                for player in players:  # Turn all tetrominoes off
-                    for block in player.tetromino.blocks:
-                        block.visible = False
-                    for block in player.next_tetromino.blocks:
-                        block.visible = False
-                    for block in player.shadow.blocks:
-                        block.visible = False
+                turn_board_off(board)
+                for player in players:
+                    player.turn_off_tetrominoes()
                 text(pos=vector(int(board['width'] / 2) - 8, int(board['height'] / 2) - 3, 1), text=' Goodbye! ',
                      height=2.5, color=color.green)
-                return True
+                exit_status = True
+                return exit_status
             else:
-                display_game_over(board, False)  # Tidy up and restart game
+                # display_game_over(board, False)  # Tidy up and restart game
                 for _ in range(board['height']):
                     clear_line(board, 0)
-                board['level'] = 1
-                board['points'] = 0
+                board['level'], board['points'] = 1, 0
                 show_points(board)
                 for player in players:
-                    player.reset_board(board)
+                    player.reset_game(board)
                     player.update_shadow(board)
                 return
 

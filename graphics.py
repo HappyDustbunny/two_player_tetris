@@ -160,5 +160,12 @@ def display_game_over(board, status):
     board['GO_message2'].visible = status
 
 
+def turn_board_off(board):
+    board['point_display'].visible = False
+    for item in board:  # Turn board off
+        if isinstance(board[item], box):
+            board[item].visible = False
+
+
 if __name__ == '__main__':
     main()
