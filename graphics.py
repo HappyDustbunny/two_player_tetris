@@ -157,6 +157,11 @@ def draw_board(columns, rows):
     board['level'] = 1
     board['points'] = 0
     board['point_display'] = text(pos=vector(-4, 18, 0), text='0', color=vector(0.6, 0.4, 0.8))
+    board['GO_message1'] = text(pos=vector(int(columns / 2) - 4, int(rows / 2) - 3, 1), text=' GAME OVER! ',
+                                color=color.green, visible=False)
+    board['GO_message2'] = text(pos=vector(int(columns / 2) - 12, int(rows / 2) - 6, 1),
+                                text=" Press any key to try again or 'e' to Exit ",
+                                color=color.green, visible=False)
 
     return board
 
@@ -169,18 +174,15 @@ def change_cube_state(board, x_coordinate, y_coordinate, colour=color.white, opa
     item.status = status
 
 
-def update_board(board, board_status):
-    columns, rows = board.get((-1, -1))  # Board size is stored in the board with key (-1, -1)
-    for y in range(rows):
-        for x in range(columns):
-            cube = board.get((x, y))
-            cube.visible, cube.color, cube.opacity = board_status.get((x, y))
-
-
-def show_points(board, points):
+def show_points(board):
     board['point_display'].visible = False
     del (board['point_display'])
-    board['point_display'] = text(pos=vector(-6, 18, 0), text=str(points), color=vector(0.6, 0.4, 0.8))
+    board['point_display'] = text(pos=vector(-6, 18, 0), text=str(board['points']), color=vector(0.6, 0.4, 0.8))
+
+
+def display_game_over(board, status):
+    board['GO_message1'].visible = status
+    board['GO_message2'].visible = status
 
 
 if __name__ == '__main__':

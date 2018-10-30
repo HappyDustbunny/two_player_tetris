@@ -1,10 +1,10 @@
 """ Two Player Tetris  """
 
-from vpython import color, scene, sleep, vector
+from vpython import box, color, scene, sleep, text, vector
 
 from random import shuffle
 
-from graphics import change_cube_state, draw_board, show_points, Tetromino
+from graphics import change_cube_state, display_game_over, draw_board, show_points, Tetromino
 
 
 class Player:
@@ -23,7 +23,7 @@ class Player:
         }
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
-        self.tetromino = Tetromino(5, 20, self.bag.pop(0), colour=colour, player=self.player_number, opacity=1)
+        self.tetromino = Tetromino(5, 21, self.bag.pop(0), colour=colour, player=self.player_number, opacity=1)
         self.next_tetromino = Tetromino(-5 if player_number == 'first' else 15, 16, self.bag.pop(0),
                                         colour=colour, player=player_number)
         self.shadow = Tetromino(5, 20, self.tetromino.shape, colour=colour, player=self.player_number, opacity=0.5)
@@ -31,7 +31,7 @@ class Player:
     def receive_input(self, board, received_inputs):
         action_input = None
         for inp in received_inputs:
-            if self.inputs.get(inp): # Inputs not bound to actions is ignored here
+            if self.inputs.get(inp):  # Inputs not bound to actions is ignored here
                 action_input = self.inputs[inp]
         if action_input:
             action_input[0](board, action_input[1]) # The dictionary for actions stores tuples with (function, argument)
@@ -73,7 +73,9 @@ class Player:
                 affected_lines.append(y)
             change_cube_state(board, x, y, colour=self.tetromino.color, opacity=1, status=True, visible=True)
         line_check(board, affected_lines)
+        return self.move_to_top(board)
 
+    def move_to_top(self, board):
         shape = self.next_tetromino.shape
         if self.probe(board, x=4, y=21, shape=shape, orientation='0'):
             self.tetromino.updater(4, y=21, shape=shape, orientation='0')
@@ -107,6 +109,12 @@ class Player:
                 return False
         return True
 
+    def reset(self, board):
+        self.bag = list('IOTSZJL')
+        shuffle(self.bag)
+        self.next_tetromino.updater(x=self.next_tetromino.x_pos, y=self.next_tetromino.y_pos, shape=self.bag.pop(0))
+        self.move_to_top(board)
+
 
 def line_check(board, check_lines):
     cleared_lines = 0
@@ -133,7 +141,7 @@ def score(board, lines_cleared):
     board['points'] += points
     board['level'] += lines_cleared * .1
     print(board['points'])
-    show_points(board, board['points'])
+    show_points(board)
 
 
 def clear_line(board, line_to_clear):
@@ -146,16 +154,48 @@ def clear_line(board, line_to_clear):
     # This shouldn't be an issue, since the topmost line should always be empty, but it could maybe cause problems.
 
 
+def game_over(board, players):
+    display_game_over(board, True)  # Turn GAME OVER message on
+    while True:
+        received_inputs = Key_Event
+        for event in received_inputs:
+            print(event)
+            if event == 'e':
+                display_game_over(board, False)  # Turn GAME OVER message off
+                for item in board:
+                    if isinstance(board[item], box):
+                        board[item].visible = False
+                board['point_display'].visible = False
+                for player in players:
+                    player.visible = False
+                    player.next_tetromino.visible = False
+                text(pos=vector(int(board['width'] / 2) - 4, int(board['height'] / 2) - 3, 1), text=' Goodbye! ',
+                     color=color.green)
+                return True
+            else:
+                display_game_over(board, False)
+                for _ in range(board['height']):
+                    clear_line(board, 0)
+                board['level'] = 1
+                board['points'] = 0
+                show_points(board)
+                for player in players:
+                    player.reset(board)
+                    player.update_shadow(board)
+                return
+
+
 Key_Event = []
 
 
 def capture_key(event):
     global Key_Event
-    Key_Event.append(event.key)
+    Key_Event.append(event.key.lower())
 
 
 def main():
     global Key_Event
+    end_of_game = False
     red_player = Player('q', 'e', 's', 'w', 'a', 'd', color.red, player_number='first')
     blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', color.blue, player_number='second')
     players = [red_player, blue_player]
@@ -166,7 +206,7 @@ def main():
     scene.range = columns + 2
     scene.autoscale = False
 
-    while True:
+    while not end_of_game:
         for _ in range(5):
             sleep((0.16 - int(board['level']) * 0.01) if board['level'] <= 15 else 0.01)
             received_inputs = Key_Event
@@ -178,7 +218,7 @@ def main():
         for player in players:
             loss_check = player.nat_drop(board)
             if loss_check == 'FAILURE':
-                return
+                end_of_game = game_over(board, players)
             player.update_shadow(board)
 
 
