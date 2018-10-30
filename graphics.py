@@ -4,32 +4,7 @@ from vpython import box, color, compound, sleep, scene, sphere, vector, text
 
 
 def main():
-    delta_t = 2
-    columns, rows = 10, 24
-    draw_board(columns, rows)
-    first = Tetromino(0, 0)
-    # first.update_tetromino('I', 'Horizontal')
-    for shape in ['T', 'I', 'O', 'S', 'J', 'Z', 'L']:
-        for count in range(4):
-            first(0, 0, shape, str(count), color.cyan)
-            sleep(delta_t)
-    #     i = 0
-    # for _ in range(0, 190, 10):
-    #     i += 1
-    #     i %= 4
-    #     print(i)
-    #     first(10, 200 - _, 'T', str(i))
-    #     sleep(delta_t)
-    # x_coordinates, y_coordinates = list(range(columns)), list(range(rows))
-    # board_status = {(x, y): (True, color.cyan, 1) for x in x_coordinates for y in y_coordinates}
-    # update_board(board, board_status)
-    # sleep(1)
-    # change_cube_state(board, 1, 2, color.red, 1, True)
-    # while True:
-    #     board_status = {(x, y): (True, vector(random(), random(), random()), 1) for x in x_coordinates for y in
-    #                     y_coordinates}
-    #     update_board(board, board_status)
-    #     sleep(0.1)
+    print('This is just graphics modules for twoplayertetris.py and trotris.py  ')
 
 
 class Tetromino:

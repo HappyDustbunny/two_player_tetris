@@ -14,8 +14,8 @@ class Player:
         self.player_number = player_number
         self.inputs = {
             # This dictionary stores the functions for navigation as tuples with (functions, argument)
-            turn_widdershins: (self.turn_tetromino, -1),
-            turn_clockwise: (self.turn_tetromino, 1),
+            turn_widdershins: (self.turn_tetromino, 1),
+            turn_clockwise: (self.turn_tetromino, -1),
             soft_drop: (self.nat_drop, None),
             hard_drop: (self.hard_drop, None),
             left: (self.move_tetromino, -1),
@@ -34,7 +34,8 @@ class Player:
             if self.inputs.get(inp):  # Inputs not bound to actions is ignored here
                 action_input = self.inputs[inp]
         if action_input:
-            action_input[0](board, action_input[1]) # The dictionary for actions stores tuples with (function, argument)
+            action_input[0](board,
+                            action_input[1])  # The dictionary for actions stores tuples with (function, argument)
             # self.update_shadow(board)
 
     def move_tetromino(self, board, move_dir):
@@ -109,7 +110,7 @@ class Player:
                 return False
         return True
 
-    def reset(self, board):
+    def reset_board(self, board):
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
         self.next_tetromino.updater(x=self.next_tetromino.x_pos, y=self.next_tetromino.y_pos, shape=self.bag.pop(0))
@@ -159,28 +160,31 @@ def game_over(board, players):
     while True:
         received_inputs = Key_Event
         for event in received_inputs:
-            print(event)
-            if event == 'e':
+            if event == 'e':  # Tidy up and exits game
                 display_game_over(board, False)  # Turn GAME OVER message off
-                for item in board:
+                for item in board:  # Turn board off
                     if isinstance(board[item], box):
                         board[item].visible = False
                 board['point_display'].visible = False
-                for player in players:
-                    player.visible = False
-                    player.next_tetromino.visible = False
-                text(pos=vector(int(board['width'] / 2) - 4, int(board['height'] / 2) - 3, 1), text=' Goodbye! ',
-                     color=color.green)
+                for player in players:  # Turn all tetrominoes off
+                    for block in player.tetromino.blocks:
+                        block.visible = False
+                    for block in player.next_tetromino.blocks:
+                        block.visible = False
+                    for block in player.shadow.blocks:
+                        block.visible = False
+                text(pos=vector(int(board['width'] / 2) - 8, int(board['height'] / 2) - 3, 1), text=' Goodbye! ',
+                     height=2.5, color=color.green)
                 return True
             else:
-                display_game_over(board, False)
+                display_game_over(board, False)  # Tidy up and restart game
                 for _ in range(board['height']):
                     clear_line(board, 0)
                 board['level'] = 1
                 board['points'] = 0
                 show_points(board)
                 for player in players:
-                    player.reset(board)
+                    player.reset_board(board)
                     player.update_shadow(board)
                 return
 
@@ -195,16 +199,20 @@ def capture_key(event):
 
 def main():
     global Key_Event
-    end_of_game = False
-    red_player = Player('q', 'e', 's', 'w', 'a', 'd', color.red, player_number='first')
-    blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', color.blue, player_number='second')
-    players = [red_player, blue_player]
     scene.bind('keydown', capture_key)
+    end_of_game = False
+
     columns, rows = 10, 24
+
+    scene.height = 550
     board = draw_board(columns, rows)
     scene.center = vector(int(columns / 2), int(rows / 2) - 3, 0)
     scene.range = columns + 2
     scene.autoscale = False
+
+    red_player = Player('q', 'e', 's', 'w', 'a', 'd', color.red, player_number='first')
+    blue_player = Player('u', 'o', 'k', 'i', 'j', 'l', color.blue, player_number='second')
+    players = [red_player, blue_player]
 
     while not end_of_game:
         for _ in range(5):
