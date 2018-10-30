@@ -35,7 +35,7 @@ class Player:
                 action_input = self.inputs[inp]
         if action_input:
             action_input[0](board, action_input[1]) # The dictionary for actions stores tuples with (function, argument)
-            self.update_shadow(board)
+            # self.update_shadow(board)
 
     def move_tetromino(self, board, move_dir):
         if self.probe(board, self.tetromino.x_pos + move_dir, self.tetromino.y_pos):
@@ -44,12 +44,13 @@ class Player:
     def turn_tetromino(self, board, turn_dir):
         # TODO: The turning isn't up to the official standards for how tetrominoes are supposed to turn.
         new_ori = str((int(self.tetromino.orientation) + turn_dir) % 4)
-        modifier_tuple = ((0, 0), (-1, 0), (1, 0), (0, -1))
-        for x_mod, y_mod in modifier_tuple:
+        modifier_list = [(0, 0), (-turn_dir, 0), (turn_dir, 0), (0, -1)]
+        if self.tetromino.shape == 'I' and self.tetromino.orientation in '13':  # Ugly solution.
+            modifier_list.append((-2, 0))
+        for x_mod, y_mod in modifier_list:
             if self.probe(board, self.tetromino.x_pos + x_mod, self.tetromino.y_pos + y_mod, orientation=new_ori):
                 self.tetromino.updater(self.tetromino.x_pos + x_mod, self.tetromino.y_pos + y_mod, orientation=new_ori)
                 return
-        # TODO: As is, the I tetromino refuses to use move itself to turn if it's too close to a wall.
 
     def nat_drop(self, board, action_input=None):
         if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos - 1):
@@ -66,8 +67,8 @@ class Player:
 
     def landing_procedure(self, board):
         affected_lines = []
-        for num in range(4):
-            x, y = self.tetromino.blocks[num].pos.x, self.tetromino.blocks[num].pos.y
+        for block in self.tetromino.blocks:
+            x, y = block.pos.x, block.pos.y
             if y not in affected_lines:
                 affected_lines.append(y)
             change_cube_state(board, x, y, colour=self.tetromino.color, opacity=1, status=True, visible=True)
@@ -119,7 +120,7 @@ def line_check(board, check_lines):
                 if not board[(x, inted_line)].status:
                     line_full = False
             if line_full:
-                clear_lines(board, inted_line)
+                clear_line(board, inted_line)
                 cleared_lines += 1
                 all_checked = False
     if cleared_lines > 0:
@@ -128,13 +129,14 @@ def line_check(board, check_lines):
 
 
 def score(board, lines_cleared):
-    points = {0: 0, 1: 100, 2: 300, 3: 500, 4: 800}[lines_cleared] * board['level']
+    points = {0: 0, 1: 100, 2: 300, 3: 500, 4: 800}[lines_cleared] * int(board['level'])
     board['points'] += points
+    board['level'] += lines_cleared * .1
     print(board['points'])
     show_points(board, board['points'])
 
 
-def clear_lines(board, line_to_clear):
+def clear_line(board, line_to_clear):
     for drop_to_line in range(line_to_clear, int(board['height']) - 1):
         for x in range(board['width']):
             block_above = board[(x, drop_to_line + 1)]
@@ -166,10 +168,12 @@ def main():
 
     while True:
         for _ in range(5):
-            sleep(0.15)
+            sleep((0.16 - int(board['level']) * 0.01) if board['level'] <= 15 else 0.01)
             received_inputs = Key_Event
             for player in players:
                 player.receive_input(board, received_inputs)
+            for player in players:
+                player.update_shadow(board)
             Key_Event = []
         for player in players:
             loss_check = player.nat_drop(board)

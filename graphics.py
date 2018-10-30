@@ -103,6 +103,47 @@ class Tetromino:
         self.updater(x, y, orientation=orientation)
 
 
+class Tromino:
+
+    def __init__(self, x, y, shape='_', colour=color.white, player='first', opacity=1):
+        self.x_pos = x
+        self.y_pos = y
+        self.shape = shape
+        self.color = colour
+        self.blocks = []
+        radius = 0.23 if player == 'first' else 0.22
+        for _ in range(3):
+            block = compound([box(pos=vector(x, y, 0), height=.8, width=.8, length=.8, opacity=opacity),
+                              sphere(pos=vector(x, y, 0.5), radius=radius, opacity=opacity),
+                              sphere(pos=vector(x, y, -0.5), radius=radius, opacity=opacity)])
+            self.blocks.append(block)
+        self.shape_dictionary = {
+            '_': (0, 0, 1, 0, 2, 0),
+            'I': (0, 0, 0, 1, 0, 2),
+            'b': (0, 0, 1, 0, 0, 1),
+            'd': (0, 0, 1, 0, 1, 1),
+            'p': (0, 0, 0, 1, 1, 1),
+            'q': (0, 1, 1, 0, 1, 1),
+        }
+        self.updater(self.x_pos, self.y_pos)
+
+    def updater(self, x, y, shape=None):
+        if shape:
+            self.shape = shape
+        else:
+            shape = self.shape
+        self.y_pos = y
+        self.x_pos = x
+        coor_list = self.shape_dictionary[shape]
+        for num in range(3):
+            self.blocks[num].pos = vector(x, y, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
+            self.blocks[num].color = self.color
+
+    def __call__(self, x, y, shape, orientation, colour):
+        self.color = colour
+        self.updater(x, y, shape)
+
+
 def draw_board(columns, rows):
     """ The board is a dictionary of cubes with coordinates as keys """
     scene.center = vector(int((columns - 1) / 2), int(rows / 2), 0)
@@ -115,7 +156,7 @@ def draw_board(columns, rows):
     board['height'] = rows  # Board size gets stored in the board with key (-1, -1)
     board['level'] = 1
     board['points'] = 0
-    board['point_display'] = text(pos=vector(-4, 18, 0), text='0', color=vector(0.6,0.4,0.8))
+    board['point_display'] = text(pos=vector(-4, 18, 0), text='0', color=vector(0.6, 0.4, 0.8))
 
     return board
 
@@ -139,7 +180,7 @@ def update_board(board, board_status):
 def show_points(board, points):
     board['point_display'].visible = False
     del (board['point_display'])
-    board['point_display'] = text(pos=vector(-6, 18, 0), text=str(points), color=vector(0.6,0.4,0.8))
+    board['point_display'] = text(pos=vector(-6, 18, 0), text=str(points), color=vector(0.6, 0.4, 0.8))
 
 
 if __name__ == '__main__':
