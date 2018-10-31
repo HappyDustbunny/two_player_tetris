@@ -55,7 +55,11 @@ class Tetromino:
         }
         self.updater(self.x_pos, self.y_pos, orientation=self.orientation)
 
-    def updater(self, x, y, shape=None, orientation=None):
+    def updater(self, x=None, y=None, shape=None, orientation=None, visible=True):
+        if x is None:
+            x = self.x_pos
+        if y is None:
+            y = self.y_pos
         if shape:
             self.shape = shape
         else:
@@ -71,6 +75,7 @@ class Tetromino:
         for num in range(4):
             self.blocks[num].pos = vector(x, y, 0) + vector(coor_list[2 * num], coor_list[2 * num + 1], 0)
             self.blocks[num].color = self.color
+            self.blocks[num].visible = visible
 
     def __call__(self, x, y, shape, orientation, colour):
         self.shape = shape

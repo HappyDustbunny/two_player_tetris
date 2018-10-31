@@ -11,7 +11,6 @@ class Player:
     def __init__(self, turn_widdershins, turn_clockwise, soft_drop, hard_drop, left, right, colour, player_number):
         """ Inputs define which keys to use: Player(a,s,w,d,...)
             player can be 'first' or 'second' Needed to discern players in case of overlap """
-        self.player_number = player_number
         self.inputs = {
             # This dictionary stores the functions for navigation as tuples with (functions, argument)
             turn_widdershins: (self.turn_tetromino, 1),
@@ -23,10 +22,12 @@ class Player:
         }
         self.bag = list('IOTSZJL')
         shuffle(self.bag)
-        self.tetromino = Tetromino(5, 21, self.bag.pop(0), colour=colour, player=self.player_number, opacity=1)
+        self.tetromino = Tetromino(5, 21, self.bag.pop(0), colour=colour, player=player_number, opacity=1)
         self.next_tetromino = Tetromino(-5 if player_number == 'first' else 15, 16, self.bag.pop(0),
                                         colour=colour, player=player_number)
-        self.shadow = Tetromino(5, 20, self.tetromino.shape, colour=colour, player=self.player_number, opacity=0.5)
+        self.shadow = Tetromino(5, 20, self.tetromino.shape, colour=colour, player=player_number, opacity=0.5)
+        self.lock_delay = False
+        self.delay_count = 0
 
     def receive_input(self, board, received_inputs):
         action_input = None
@@ -41,6 +42,7 @@ class Player:
     def move_tetromino(self, board, move_dir):
         if self.probe(board, self.tetromino.x_pos + move_dir, self.tetromino.y_pos):
             self.tetromino.updater(self.tetromino.x_pos + move_dir, self.tetromino.y_pos)
+            self.lock_delay = True
 
     def turn_tetromino(self, board, turn_dir):
         # TODO: Check if turning is up to the official standards for how tetrominoes are supposed to turn.
@@ -51,19 +53,27 @@ class Player:
         for x_mod, y_mod in modifier_list:
             if self.probe(board, self.tetromino.x_pos + x_mod, self.tetromino.y_pos + y_mod, orientation=new_ori):
                 self.tetromino.updater(self.tetromino.x_pos + x_mod, self.tetromino.y_pos + y_mod, orientation=new_ori)
+                self.lock_delay = True
                 return
 
     def nat_drop(self, board, action_input=None):
         if self.probe(board, self.tetromino.x_pos, self.tetromino.y_pos - 1):
             self.tetromino.updater(self.tetromino.x_pos, self.tetromino.y_pos - 1)
-        else:
-            loss_check = self.landing_procedure(board)
+            self.lock_delay = False
+        elif self.delay_count >= 4 or not self.lock_delay:
+            self.landing_procedure(board)
+            self.lock_delay = False
+            self.delay_count = 0
+            loss_check = self.move_to_top(board)
             return loss_check
+        else:
+            self.delay_count += 1
 
     def hard_drop(self, board, action_input=None):
         for y in range(self.tetromino.y_pos, -1, -1):
             if self.probe(board, self.tetromino.x_pos, y) and not self.probe(board, self.tetromino.x_pos, y - 1):
                 self.tetromino.updater(self.tetromino.x_pos, y)
+                self.lock_delay = True
                 return
 
     def landing_procedure(self, board):
@@ -73,8 +83,9 @@ class Player:
             if y not in affected_lines:
                 affected_lines.append(y)
             change_cube_state(board, x, y, colour=self.tetromino.color, opacity=1, status=True, visible=True)
+        self.tetromino.updater(visible=False)  # The default for updating a tetromino is to make it visible,
+        # so when move_to_top updates the block again, it becomes visible again.
         line_check(board, affected_lines)
-        return self.move_to_top(board)
 
     def move_to_top(self, board):
         shape = self.next_tetromino.shape
@@ -84,7 +95,7 @@ class Player:
                 self.bag = list('IOTSZJL')
                 shuffle(self.bag)
             shape = self.bag.pop(0)
-            self.next_tetromino.updater(x=self.next_tetromino.x_pos, y=self.next_tetromino.y_pos, shape=shape)
+            self.next_tetromino.updater(shape=shape)
         else:
             return 'FAILURE'
 
@@ -95,7 +106,11 @@ class Player:
                                     orientation=self.tetromino.orientation)
                 return
 
-    def probe(self, board, x, y, shape=None, orientation=None):
+    def probe(self, board, x=None, y=None, shape=None, orientation=None):
+        if x is None:
+            x = self.tetromino.x_pos
+        if y is None:
+            y = self.tetromino.y_pos
         if not shape:
             shape = self.tetromino.shape
         if not orientation:
@@ -115,14 +130,6 @@ class Player:
         shuffle(self.bag)
         self.next_tetromino.updater(x=self.next_tetromino.x_pos, y=self.next_tetromino.y_pos, shape=self.bag.pop(0))
         self.move_to_top(board)
-
-    def turn_off_tetrominoes(self):  # Turn all tetrominoes off
-        for block in self.tetromino.blocks:
-            block.visible = False
-        for block in self.next_tetromino.blocks:
-            block.visible = False
-        for block in self.shadow.blocks:
-            block.visible = False
 
 
 def line_check(board, check_lines):
@@ -173,7 +180,8 @@ def game_over(board, players):
             if event == 'e':  # Tidy up and exits game
                 turn_board_off(board)
                 for player in players:
-                    player.turn_off_tetrominoes()
+                    for item in (player.tetromino, player.next_tetromino, player.shadow):
+                        item.updater(visible=False)
                 text(pos=vector(int(board['width'] / 2) - 8, int(board['height'] / 2) - 3, 1), text=' Goodbye! ',
                      height=2.5, color=color.green)
                 exit_status = True
