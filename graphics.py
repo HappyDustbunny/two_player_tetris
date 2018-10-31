@@ -1,6 +1,6 @@
 """ Graphics for Two Player Tetris """
 
-from vpython import box, color, compound, sleep, scene, sphere, vector, text
+from vpython import box, color, compound, scene, sphere, vector, text
 
 
 def main():
@@ -125,15 +125,18 @@ class Tromino:
 
 
 def draw_board(columns, rows):
-    """ The board is a dictionary of cubes with coordinates as keys """
+    """ The board is a dictionary of cubes with coordinates as keys.
+        Other information and graphics is stored too, with descriptive
+        names as keys """
     scene.center = vector(int((columns - 1) / 2), int(rows / 2), 0)
     x_coordinates, y_coordinates = list(range(columns)), list(range(rows))
     board = {(x, y): box(pos=vector(x, y, 0), height=.8, width=.8, length=.8, opacity=0.2)
              for x in x_coordinates for y in y_coordinates}
     for item in board:
         board[item].status = False
+
     board['width'] = columns
-    board['height'] = rows  # Board size gets stored in the board with key (-1, -1)
+    board['height'] = rows
     board['level'] = 1
     board['points'] = 0
     board['point_display'] = text(pos=vector(-4, 18, 0), text='0', color=vector(0.6, 0.4, 0.8))
