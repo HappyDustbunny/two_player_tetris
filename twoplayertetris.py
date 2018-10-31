@@ -35,8 +35,7 @@ class Player:
             if self.inputs.get(inp):  # Inputs not bound to actions is ignored here
                 action_input = self.inputs[inp]
         if action_input:
-            action_input[0](board,
-                            action_input[1])  # The dictionary for actions stores tuples with (function, argument)
+            action_input[0](board, action_input[1])  # The dictionary for actions stores tuples with (function, arg)
             # self.update_shadow(board)
 
     def move_tetromino(self, board, move_dir):
